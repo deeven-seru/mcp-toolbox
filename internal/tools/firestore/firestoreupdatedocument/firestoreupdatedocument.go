@@ -63,8 +63,8 @@ type Config struct {
 	AuthRequired []string               `yaml:"authRequired"`
 	Annotations  *tools.ToolAnnotations `yaml:"annotations,omitempty"`
 
-	ScopesRequired []string `yaml:"scopesRequired"`
-	VectorFields []fsUtil.VectorFieldConfig `yaml:"vectorFields"`
+	ScopesRequired []string                   `yaml:"scopesRequired"`
+	VectorFields   []fsUtil.VectorFieldConfig `yaml:"vectorFields"`
 }
 
 // validate interface
@@ -133,10 +133,10 @@ func (cfg Config) Initialize(srcs map[string]sources.Source) (tools.Tool, error)
 
 	// finish tool setup
 	t := Tool{
-		Config:      cfg,
-		Parameters:  params,
-		manifest:    tools.Manifest{Description: cfg.Description, Parameters: params.Manifest(), AuthRequired: cfg.AuthRequired},
-		mcpManifest: mcpManifest,
+		Config:       cfg,
+		Parameters:   params,
+		manifest:     tools.Manifest{Description: cfg.Description, Parameters: params.Manifest(), AuthRequired: cfg.AuthRequired},
+		mcpManifest:  mcpManifest,
 		vectorFields: vectorFields,
 	}
 	return t, nil
@@ -147,9 +147,9 @@ var _ tools.Tool = Tool{}
 
 type Tool struct {
 	Config
-	Parameters  parameters.Parameters `yaml:"parameters"`
-	manifest    tools.Manifest
-	mcpManifest tools.McpManifest
+	Parameters   parameters.Parameters `yaml:"parameters"`
+	manifest     tools.Manifest
+	mcpManifest  tools.McpManifest
 	vectorFields []fsUtil.VectorFieldRuntime
 }
 
@@ -180,11 +180,6 @@ func (t Tool) Invoke(ctx context.Context, resourceMgr tools.SourceProvider, para
 	documentDataRaw, ok := mapParams[documentDataKey]
 	if !ok {
 		return nil, util.NewAgentError(fmt.Sprintf("invalid or missing '%s' parameter", documentDataKey), nil)
-	}
-
-	vectorValues, err := fsUtil.ExtractVectorFieldValues(mapParams, t.vectorFields)
-	if err != nil {
-		return nil, util.NewAgentError(fmt.Sprintf("invalid vector field: %v", err), err)
 	}
 
 	// Get update mask if provided
@@ -237,6 +232,20 @@ func (t Tool) Invoke(ctx context.Context, resourceMgr tools.SourceProvider, para
 		documentData, err = fsUtil.JSONToFirestoreValue(documentDataRaw, source.FirestoreClient())
 		if err != nil {
 			return nil, util.NewAgentError(fmt.Sprintf("failed to convert document data: %v", err), err)
+		}
+
+		vectorValues, err := fsUtil.ExtractVectorFieldValues(mapParams, t.vectorFields)
+		if err != nil {
+			return nil, util.NewAgentError(fmt.Sprintf("invalid vector field: %v", err), err)
+		}
+		if len(vectorValues) > 0 {
+			dataMap, ok := documentData.(map[string]any)
+			if !ok {
+				return nil, util.NewAgentError("documentData must be an object when vector fields are provided", nil)
+			}
+			if err := fsUtil.UpsertVectorValues(dataMap, vectorValues); err != nil {
+				return nil, util.NewAgentError(fmt.Sprintf("failed to apply vector fields: %v", err), err)
+			}
 		}
 	}
 

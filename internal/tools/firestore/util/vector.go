@@ -51,7 +51,7 @@ func BuildVectorFieldParameter(cfg VectorFieldConfig) (*parameters.StringParamet
 	}
 
 	param := parameters.NewStringParameterWithRequired(cfg.Name, cfg.Description, cfg.Required)
-	param.CommonParameter.EmbeddedBy = cfg.EmbeddedBy
+	param.EmbeddedBy = cfg.EmbeddedBy
 
 	runtime := VectorFieldRuntime{
 		ParameterName: cfg.Name,
@@ -221,7 +221,7 @@ func BuildVectorQueryRuntime(cfg *VectorQueryConfig) (*parameters.StringParamete
 	}
 
 	param := parameters.NewStringParameterWithRequired(cfg.Name, cfg.Description, cfg.Required)
-	param.CommonParameter.EmbeddedBy = cfg.EmbeddedBy
+	param.EmbeddedBy = cfg.EmbeddedBy
 
 	runtime := &VectorQueryRuntime{
 		ParameterName:       cfg.Name,
