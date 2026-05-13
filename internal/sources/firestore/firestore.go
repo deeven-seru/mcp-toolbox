@@ -198,7 +198,15 @@ type QueryResponse struct {
 
 // ExecuteQuery runs the query and formats the results
 func (s *Source) ExecuteQuery(ctx context.Context, query *firestore.Query, analyzeQuery bool) (any, error) {
-	docIterator := query.Documents(ctx)
+	return s.executeIterator(query.Documents(ctx), analyzeQuery)
+}
+
+// ExecuteVectorQuery runs a vector query and formats the results.
+func (s *Source) ExecuteVectorQuery(ctx context.Context, vectorQuery firestore.VectorQuery, analyzeQuery bool) (any, error) {
+	return s.executeIterator(vectorQuery.Documents(ctx), analyzeQuery)
+}
+
+func (s *Source) executeIterator(docIterator *firestore.DocumentIterator, analyzeQuery bool) (any, error) {
 	docs, err := docIterator.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query: %w", err)
