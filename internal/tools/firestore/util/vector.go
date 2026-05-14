@@ -25,11 +25,12 @@ import (
 // VectorFieldConfig defines a plain-text input that should be embedded and stored
 // at the specified Firestore field path during writes.
 type VectorFieldConfig struct {
-	Name        string `yaml:"name" validate:"required"`
-	Description string `yaml:"description" validate:"required"`
-	FieldPath   string `yaml:"fieldPath" validate:"required"`
-	EmbeddedBy  string `yaml:"embeddedBy" validate:"required"`
-	Required    bool   `yaml:"required"`
+	Name           string `yaml:"name" validate:"required"`
+	Description    string `yaml:"description"`
+	FieldPath      string `yaml:"fieldPath" validate:"required"`
+	EmbeddedBy     string `yaml:"embeddedBy" validate:"required"`
+	Required       bool   `yaml:"required"`
+	ValueFromParam string `yaml:"valueFromParam"`
 }
 
 // VectorFieldRuntime captures the runtime metadata required to process vector inputs.
@@ -43,7 +44,7 @@ func BuildVectorFieldParameter(cfg VectorFieldConfig) (*parameters.StringParamet
 	if cfg.Name == "" {
 		return nil, VectorFieldRuntime{}, fmt.Errorf("vector field parameter requires a name")
 	}
-	if cfg.Description == "" {
+	if cfg.Description == "" && cfg.ValueFromParam == "" {
 		return nil, VectorFieldRuntime{}, fmt.Errorf("vector field %q must specify description", cfg.Name)
 	}
 	if cfg.FieldPath == "" {
@@ -55,11 +56,13 @@ func BuildVectorFieldParameter(cfg VectorFieldConfig) (*parameters.StringParamet
 
 	param := parameters.NewStringParameterWithRequired(cfg.Name, cfg.Description, cfg.Required)
 	param.EmbeddedBy = cfg.EmbeddedBy
+	param.ValueFromParam = cfg.ValueFromParam
 
 	runtime := VectorFieldRuntime{
 		ParameterName: cfg.Name,
 		FieldPath:     cfg.FieldPath,
 	}
+
 	return param, runtime, nil
 }
 
@@ -69,7 +72,7 @@ func ExtractVectorFieldValues(paramMap map[string]any, fields []VectorFieldRunti
 		return nil, nil
 	}
 
-	result := make(map[string][]float64)
+	result := make(map[string][]float64, len(fields))
 	for _, field := range fields {
 		value, ok := paramMap[field.ParameterName]
 		if !ok || value == nil {
@@ -186,7 +189,7 @@ func setNestedField(target map[string]any, fieldPath string, value any) error {
 // VectorQueryConfig describes a similarity search input.
 type VectorQueryConfig struct {
 	Name                string   `yaml:"name" validate:"required"`
-	Description         string   `yaml:"description" validate:"required"`
+	Description         string   `yaml:"description"`
 	FieldPath           string   `yaml:"fieldPath" validate:"required"`
 	EmbeddedBy          string   `yaml:"embeddedBy" validate:"required"`
 	DistanceMeasure     string   `yaml:"distanceMeasure" validate:"required"`
@@ -223,7 +226,7 @@ func ExtractVectorQueryValue(paramMap map[string]any, runtime *VectorQueryRuntim
 	return vectorValues, true, nil
 }
 
-// BuildVectorQueryRuntime converts config into parameter + runtime structures.
+// BuildVectorQueryRuntime creates parameter and runtime config for a vector query.
 func BuildVectorQueryRuntime(cfg *VectorQueryConfig) (*parameters.StringParameter, *VectorQueryRuntime, error) {
 	if cfg == nil {
 		return nil, nil, nil

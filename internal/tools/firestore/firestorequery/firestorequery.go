@@ -52,12 +52,16 @@ func newConfig(ctx context.Context, name string, decoder *yaml.Decoder) (tools.T
 	return actual, nil
 }
 
+// DocumentQuery interface abstracts over both standard and vector queries
+type DocumentQuery interface {
+	Documents(ctx context.Context) *firestoreapi.DocumentIterator
+}
+
 // compatibleSource defines the interface for sources that can provide a Firestore client
 type compatibleSource interface {
 	FirestoreClient() *firestoreapi.Client
 	BuildQuery(string, firestoreapi.EntityFilter, []string, string, firestoreapi.Direction, int, bool) (*firestoreapi.Query, error)
-	ExecuteQuery(context.Context, *firestoreapi.Query, bool) (any, error)
-	ExecuteVectorQuery(context.Context, firestoreapi.VectorQuery, bool) (any, error)
+	ExecuteQuery(context.Context, DocumentQuery, bool) (any, error)
 }
 
 // Config represents the configuration for the Firestore query tool
@@ -247,7 +251,7 @@ func (t Tool) Invoke(ctx context.Context, resourceMgr tools.SourceProvider, para
 		}
 		if ok {
 			nearestQuery := query.FindNearest(t.vectorQuery.FieldPath, firestoreapi.Vector64(vectorValues), limit, t.vectorQuery.Measure, fsUtil.BuildFindNearestOptions(t.vectorQuery))
-			resp, err := source.ExecuteVectorQuery(ctx, nearestQuery, t.AnalyzeQuery)
+			resp, err := source.ExecuteQuery(ctx, nearestQuery, t.AnalyzeQuery)
 			if err != nil {
 				return nil, util.ProcessGcpError(err)
 			}

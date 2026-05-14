@@ -196,14 +196,14 @@ type QueryResponse struct {
 	ExplainMetrics map[string]any `json:"explainMetrics,omitempty"`
 }
 
-// ExecuteQuery runs the query and formats the results
-func (s *Source) ExecuteQuery(ctx context.Context, query *firestore.Query, analyzeQuery bool) (any, error) {
-	return s.executeIterator(query.Documents(ctx), analyzeQuery)
+// DocumentQuery is an interface for queries that can return documents
+type DocumentQuery interface {
+	Documents(ctx context.Context) *firestore.DocumentIterator
 }
 
-// ExecuteVectorQuery runs a vector query and formats the results.
-func (s *Source) ExecuteVectorQuery(ctx context.Context, vectorQuery firestore.VectorQuery, analyzeQuery bool) (any, error) {
-	return s.executeIterator(vectorQuery.Documents(ctx), analyzeQuery)
+// ExecuteQuery runs the query and formats the results
+func (s *Source) ExecuteQuery(ctx context.Context, query DocumentQuery, analyzeQuery bool) (any, error) {
+	return s.executeIterator(query.Documents(ctx), analyzeQuery)
 }
 
 func (s *Source) executeIterator(docIterator *firestore.DocumentIterator, analyzeQuery bool) (any, error) {
