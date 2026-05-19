@@ -56,7 +56,7 @@ type ToolsetManifest struct {
 	ToolsManifest map[string]Manifest `json:"tools"`
 }
 
-func (t ToolsetConfig) Initialize(serverVersion string, toolsMap map[string]Tool) (Toolset, error) {
+func (t ToolsetConfig) Initialize(serverVersion string, toolsMap map[string]Tool, allowPartial bool) (Toolset, []string, error) {
 	// finish toolset setup
 	// Check each declared tool name exists
 	toolset := Toolset{
@@ -69,18 +69,24 @@ func (t ToolsetConfig) Initialize(serverVersion string, toolsMap map[string]Tool
 		toolNameSet: make(map[string]struct{}, len(t.ToolNames)),
 	}
 	if !IsValidName(toolset.Name) {
-		return toolset, fmt.Errorf("invalid toolset name: %s", toolset.Name)
+		return toolset, nil, fmt.Errorf("invalid toolset name: %s", toolset.Name)
 	}
+	var missing []string
 	for _, toolName := range t.ToolNames {
 		tool, ok := toolsMap[toolName]
 		if !ok {
-			return toolset, fmt.Errorf("tool does not exist: %s", toolName)
+			if allowPartial {
+				missing = append(missing, toolName)
+				continue
+			}
+			return toolset, nil, fmt.Errorf("tool does not exist: %s", toolName)
 		}
 		toolset.Tools = append(toolset.Tools, &tool)
 		toolset.Manifest.ToolsManifest[toolName] = tool.Manifest()
 		toolset.toolNameSet[toolName] = struct{}{}
 	}
-	return toolset, nil
+
+	return toolset, missing, nil
 }
 
 var validName = regexp.MustCompile(`^[a-zA-Z0-9_-]*$`)

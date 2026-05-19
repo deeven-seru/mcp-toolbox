@@ -84,7 +84,7 @@ func setUpResources(t *testing.T, mockTools []testutils.MockTool, mockPrompts []
 		"tool2_only": {allTools[1]},
 	} {
 		tc := tools.ToolsetConfig{Name: name, ToolNames: l}
-		m, err := tc.Initialize(fakeVersionString, toolsMap)
+		m, _, err := tc.Initialize(fakeVersionString, toolsMap, false)
 		if err != nil {
 			t.Fatalf("unable to initialize toolset %q: %s", name, err)
 		}
@@ -101,7 +101,7 @@ func setUpResources(t *testing.T, mockTools []testutils.MockTool, mockPrompts []
 	promptsets := make(map[string]prompts.Promptset)
 	if len(allPrompts) > 0 {
 		psc := prompts.PromptsetConfig{Name: "", PromptNames: allPrompts}
-		ps, err := psc.Initialize(fakeVersionString, promptsMap)
+		ps, _, err := psc.Initialize(fakeVersionString, promptsMap, false)
 		if err != nil {
 			t.Fatalf("unable to initialize default promptset: %s", err)
 		}

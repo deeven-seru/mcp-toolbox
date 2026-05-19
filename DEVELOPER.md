@@ -37,6 +37,14 @@ Before you begin, ensure you have the following:
     go run .
     ```
 
+    * **Allowing Partial Startup:** During local development or active configuration, you can pass the `--allow-partial-startup` flag to prevent the server from crashing if some sources, tools, or prompts fail to initialize:
+
+        ```bash
+        go run . --allow-partial-startup
+        ```
+
+        Failure summaries will be logged in console warnings, allowing you to debug individual connection/configuration issues while keeping the rest of the server active.
+
 1. **Testing the Endpoint:** Verify the server is running by sending a request
    to the endpoint:
 

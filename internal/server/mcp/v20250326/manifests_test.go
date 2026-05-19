@@ -197,7 +197,7 @@ func TestGenerateListToolsResult(t *testing.T) {
 		Name:      "test-toolset",
 		ToolNames: []string{"no_params", "some_params"},
 	}
-	toolset, err := tc.Initialize("test-version", toolsMap)
+	toolset, _, err := tc.Initialize("test-version", toolsMap, false)
 	if err != nil {
 		t.Fatalf("unable to initialize toolset %q: %s", "test-toolset", err)
 	}
@@ -310,7 +310,7 @@ func TestGenerateListPromptsResult(t *testing.T) {
 		Name:        "test-promptset",
 		PromptNames: []string{"prompt1", "prompt2"},
 	}
-	promptset, err := pc.Initialize("test-version", promptsMap)
+	promptset, _, err := pc.Initialize("test-version", promptsMap, false)
 	if err != nil {
 		t.Fatalf("unable to initialize promptset %q: %s", "test-promptset", err)
 	}

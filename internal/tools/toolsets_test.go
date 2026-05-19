@@ -169,7 +169,7 @@ func TestToolsetConfig_Initialize(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := tc.config.Initialize(serverVersion, toolsMap)
+			got, _, err := tc.config.Initialize(serverVersion, toolsMap, false)
 
 			if tc.wantErr != "" {
 				if err == nil {
