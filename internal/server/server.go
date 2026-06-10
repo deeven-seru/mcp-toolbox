@@ -61,6 +61,7 @@ type Server struct {
 	sseManager          *sseManager
 	ResourceMgr         *resources.ResourceManager
 	mcpPrmFile          string
+	httpMaxRequestBytes int64
 }
 
 func InitializeConfigs(ctx context.Context, cfg ServerConfig) (
@@ -392,6 +393,11 @@ func NewServer(ctx context.Context, cfg ServerConfig) (*Server, error) {
 
 	resourceManager := resources.NewResourceManager(sourcesMap, authServicesMap, embeddingModelsMap, toolsMap, toolsetsMap, promptsMap, promptsetsMap)
 
+	limit := cfg.HttpMaxRequestBytes
+	if limit <= 0 {
+		limit = DefaultHTTPMaxRequestBytes
+	}
+
 	s := &Server{
 		version:             cfg.Version,
 		sqlCommenterEnabled: cfg.SQLCommenter,
@@ -403,6 +409,7 @@ func NewServer(ctx context.Context, cfg ServerConfig) (*Server, error) {
 		ResourceMgr:         resourceManager,
 		toolboxUrl:          cfg.ToolboxUrl,
 		mcpPrmFile:          cfg.McpPrmFile,
+		httpMaxRequestBytes: limit,
 	}
 
 	// cors
