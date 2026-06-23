@@ -53,9 +53,10 @@ type compatibleSource interface {
 
 type Config struct {
 	tools.ConfigBase `yaml:",inline"`
-	Type             string                 `yaml:"type" validate:"required"`
-	Source           string                 `yaml:"source" validate:"required"`
-	Annotations      *tools.ToolAnnotations `yaml:"annotations,omitempty"`
+	Type             string                     `yaml:"type" validate:"required"`
+	Source           string                     `yaml:"source" validate:"required"`
+	Annotations      *tools.ToolAnnotations     `yaml:"annotations,omitempty"`
+	VectorFields     []fsUtil.VectorFieldConfig `yaml:"vectorFields"`
 }
 
 // validate interface
@@ -105,6 +106,16 @@ func (cfg Config) Initialize(context.Context) (tools.Tool, error) {
 		returnDataParameter,
 	}
 
+	vectorFields := make([]fsUtil.VectorFieldRuntime, 0, len(cfg.VectorFields))
+	for _, vfCfg := range cfg.VectorFields {
+		param, runtime, err := fsUtil.BuildVectorFieldParameter(vfCfg)
+		if err != nil {
+			return nil, err
+		}
+		params = append(params, param)
+		vectorFields = append(vectorFields, runtime)
+	}
+
 	return Tool{
 		BaseTool: tools.NewBaseTool(
 			cfg,
@@ -112,6 +123,7 @@ func (cfg Config) Initialize(context.Context) (tools.Tool, error) {
 			tools.Manifest{Description: cfg.Description, Parameters: params.Manifest(), AuthRequired: cfg.AuthRequired},
 			params,
 		),
+		vectorFields: vectorFields,
 	}, nil
 }
 
@@ -120,6 +132,7 @@ var _ tools.Tool = Tool{}
 
 type Tool struct {
 	tools.BaseTool[Config]
+	vectorFields []fsUtil.VectorFieldRuntime
 }
 
 func (t Tool) ToConfig() tools.ToolConfig {
@@ -152,6 +165,20 @@ func (t Tool) Invoke(ctx context.Context, resourceMgr tools.SourceProvider, para
 	documentData, err := fsUtil.JSONToFirestoreValue(documentDataRaw, source.FirestoreClient())
 	if err != nil {
 		return nil, util.NewAgentError(fmt.Sprintf("failed to convert document data: %v", err), err)
+	}
+
+	vectorValues, err := fsUtil.ExtractVectorFieldValues(mapParams, t.vectorFields)
+	if err != nil {
+		return nil, util.NewAgentError(fmt.Sprintf("invalid vector field: %v", err), err)
+	}
+	if len(vectorValues) > 0 {
+		dataMap, ok := documentData.(map[string]any)
+		if !ok {
+			return nil, util.NewAgentError("documentData must be an object when vector fields are provided", nil)
+		}
+		if err := fsUtil.UpsertVectorValues(dataMap, vectorValues); err != nil {
+			return nil, util.NewAgentError(fmt.Sprintf("failed to apply vector fields: %v", err), err)
+		}
 	}
 
 	// Get return document data flag
