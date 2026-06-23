@@ -72,7 +72,7 @@ func (cfg Config) Initialize(context.Context) (tools.Tool, error) {
 		"If set to true, the query will be validated and information about the execution "+
 			"will be returned without running the query. Defaults to false.", parameters.WithBooleanDefault(
 			false))
-params := parameters.Parameters{cypherParameter, dryRunParameter}
+	params := parameters.Parameters{cypherParameter, dryRunParameter}
 
 	return Tool{
 		BaseTool: tools.NewBaseTool(
