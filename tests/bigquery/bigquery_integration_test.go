@@ -20,12 +20,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"reflect"
 	"regexp"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -3215,4 +3217,131 @@ func getBigQueryVectorSearchStmts(vectorTableName string) (string, string) {
 	insertStmt := fmt.Sprintf("INSERT INTO %s (id, content, embedding) VALUES (1, @content, @text_to_embed)", vectorTableName)
 	searchStmt := fmt.Sprintf("SELECT id, content, ML.DISTANCE(embedding, @query, 'COSINE') AS distance FROM %s ORDER BY distance LIMIT 1", vectorTableName)
 	return insertStmt, searchStmt
+}
+
+func TestBigQueryProxy(t *testing.T) {
+	// Start local proxy server
+	var proxyCount int32
+	server := &http.Server{
+		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method == http.MethodConnect {
+				atomic.AddInt32(&proxyCount, 1)
+				destConn, err := net.DialTimeout("tcp", r.Host, 10*time.Second)
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusServiceUnavailable)
+					return
+				}
+				w.WriteHeader(http.StatusOK)
+				hijacker, ok := w.(http.Hijacker)
+				if !ok {
+					http.Error(w, "Hijacking not supported", http.StatusInternalServerError)
+					return
+				}
+				clientConn, _, err := hijacker.Hijack()
+				if err != nil {
+					http.Error(w, err.Error(), http.StatusServiceUnavailable)
+					return
+				}
+				go func() {
+					defer destConn.Close()
+					defer clientConn.Close()
+					io.Copy(destConn, clientConn)
+				}()
+				go func() {
+					defer destConn.Close()
+					defer clientConn.Close()
+					io.Copy(clientConn, destConn)
+				}()
+			} else {
+				http.Error(w, "Only CONNECT method is supported", http.StatusMethodNotAllowed)
+			}
+		}),
+	}
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("Failed to start proxy: %v", err)
+	}
+	go func() {
+		_ = server.Serve(listener)
+	}()
+	t.Cleanup(func() {
+		server.Close()
+	})
+
+	proxyURL := "http://" + listener.Addr().String()
+
+	sourceConfig := getBigQueryVars(t)
+	sourceConfig["proxy"] = proxyURL
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	datasetName := fmt.Sprintf("temp_toolbox_test_proxy_%s", strings.ReplaceAll(uuid.New().String(), "-", ""))
+
+	client, err := initBigQueryConnection(BigqueryProject)
+	if err != nil {
+		t.Fatalf("unable to create BigQuery connection: %s", err)
+	}
+
+	dataset := client.Dataset(datasetName)
+	if err := dataset.Create(ctx, &bigqueryapi.DatasetMetadata{Name: datasetName}); err != nil {
+		t.Fatalf("Failed to create dataset %q: %v", datasetName, err)
+	}
+	defer func() {
+		if err := dataset.DeleteWithContents(ctx); err != nil {
+			t.Logf("failed to cleanup dataset %s: %v", datasetName, err)
+		}
+	}()
+
+	toolsFile := map[string]any{
+		"sources": map[string]any{
+			"my-instance": sourceConfig,
+		},
+		"tools": map[string]any{
+			"my-list-dataset-tool": map[string]any{
+				"type":        "bigquery-list-dataset-ids",
+				"source":      "my-instance",
+				"description": "Tool to list dataset",
+			},
+		},
+	}
+
+	args := []string{"--enable-api"}
+	cmd, cleanup, err := tests.StartCmd(ctx, toolsFile, args...)
+	if err != nil {
+		t.Fatalf("command initialization returned an error: %s", err)
+	}
+	defer cleanup()
+	defer cmd.Close()
+
+	waitCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	out, err := testutils.WaitForString(waitCtx, regexp.MustCompile(`Server ready to serve`), cmd.Out)
+	if err != nil {
+		t.Logf("toolbox command logs: \n%s", out)
+		t.Fatalf("toolbox didn't start successfully: %s", err)
+	}
+
+	// Make a tool call and verify it succeeds
+	reqBody := []byte(`{}`)
+	req, err := http.NewRequest("POST", "http://127.0.0.1:5000/api/tool/my-list-dataset-tool/invoke", bytes.NewBuffer(reqBody))
+	if err != nil {
+		t.Fatalf("failed to create request: %v", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatalf("failed to invoke tool: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected status 200, got %d. Body: %s", resp.StatusCode, string(bodyBytes))
+	}
+
+	if atomic.LoadInt32(&proxyCount) == 0 {
+		t.Errorf("Proxy was not used during the API call")
+	}
 }
