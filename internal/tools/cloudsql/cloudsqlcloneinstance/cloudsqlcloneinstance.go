@@ -149,7 +149,6 @@ func buildParams(project string) parameters.Parameters {
 		projectParam,
 		parameters.NewStringParameter("sourceInstanceName", "The name of the instance to be cloned."),
 		parameters.NewStringParameter("destinationInstanceName", "The name of the new instance that will be created by cloning the source instance."),
-
 		parameters.NewStringParameter("pointInTime", "The timestamp in RFC 3339 format to which the source instance should be cloned.", parameters.WithStringRequired(false)),
 		parameters.NewStringParameter("preferredZone", "The preferred zone for the new instance.", parameters.WithStringRequired(false)),
 		parameters.NewStringParameter("preferredSecondaryZone", "The preferred secondary zone for the new instance.", parameters.WithStringRequired(false)),

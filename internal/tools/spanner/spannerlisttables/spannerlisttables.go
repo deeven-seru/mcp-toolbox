@@ -69,7 +69,6 @@ func (cfg Config) Initialize(context.Context) (tools.Tool, error) {
 		parameters.NewStringParameter(
 			"table_names",
 			"Optional: A comma-separated list of table names. If empty, details for all tables in user-accessible schemas will be listed.", parameters.WithStringDefault("")),
-
 		parameters.NewStringParameter(
 			"output_format",
 			"Optional: Use 'simple' to return table names only or use 'detailed' to return the full information schema.", parameters.WithStringDefault("detailed")),

@@ -141,7 +141,6 @@ func buildParams(project string) parameters.Parameters {
 	return parameters.Parameters{
 		projectParam,
 		parameters.NewStringParameter("instance", "Cloud SQL instance ID. This does not include the project ID."),
-
 		parameters.NewStringParameter("location", "Location of the backup run.", parameters.WithStringRequired(false)),
 		parameters.NewStringParameter("backup_description", "The description of this backup run.", parameters.WithStringRequired(false)),
 	}

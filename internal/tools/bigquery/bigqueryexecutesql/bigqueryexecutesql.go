@@ -286,8 +286,7 @@ func buildParams(writeMode string, allowedDatasets []string) (parameters.Paramet
 		"If set to true, the query will be validated and information about the execution will be returned "+
 			"without running the query. Defaults to false.", parameters.WithBooleanDefault(
 			false))
-
-	return parameters.Parameters{sqlParameter, dryRunParameter}, nil
+return parameters.Parameters{sqlParameter, dryRunParameter}, nil
 }
 
 // resolveParams builds the tool's parameters using the source's allowed-dataset configuration.

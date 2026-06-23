@@ -77,10 +77,7 @@ func (cfg Config) Initialize(context.Context) (tools.Tool, error) {
 	params := parameters.Parameters{
 		parameters.NewStringParameter(
 			"filter",
-			"Cloud Logging filter query. Common fields: resource.type, resource.labels.*, logName, severity, textPayload, jsonPayload.*, protoPayload.*, labels.*, httpRequest.*. Operators: =, !=, <, <=, >, >=, :, =~, AND, OR, NOT.", parameters.WithStringRequired(
-
-				false)),
-
+			"Cloud Logging filter query. Common fields: resource.type, resource.labels.*, logName, severity, textPayload, jsonPayload.*, protoPayload.*, labels.*, httpRequest.*. Operators: =, !=, <, <=, >, >=, :, =~, AND, OR, NOT.", parameters.WithStringRequired(false)),
 		parameters.NewBooleanParameter("newestFirst", "Set to true for newest logs first. Defaults to oldest first.", parameters.WithBooleanRequired(false)),
 		parameters.NewStringParameter("startTime", startTimeDescription, parameters.WithStringRequired(false)),
 		parameters.NewStringParameter("endTime", "End time in RFC3339 format (e.g., 2025-12-09T23:59:59Z). Defaults to now.", parameters.WithStringRequired(false)),

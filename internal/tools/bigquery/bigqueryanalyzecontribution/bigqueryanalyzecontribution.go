@@ -321,15 +321,11 @@ func buildParams(allowedDatasets []string) parameters.Parameters {
 		SUM(metric_sum_column_name)/COUNT(DISTINCT categorical_column_name). The summed column must be a numeric data type.
 		The categorical column must have type BOOL, DATE, DATETIME, TIME, TIMESTAMP, STRING, or INT64.`, parameters.WithStringEscape(
 		"single-quotes"))
-
 	isTestColParameter := parameters.NewStringParameter("is_test_col", "The name of the column that identifies whether a row is in the test or control group.", parameters.WithStringEscape(
 		"single-quotes"))
-
 	dimensionIDColsParameter := parameters.NewArrayParameter("dimension_id_cols", "An array of column names that uniquely identify each dimension.", parameters.NewStringParameter("dimension_id_col", "A dimension column name.", parameters.WithStringEscape("single-quotes")), parameters.WithArrayRequired(
 		false))
-
 	topKInsightsParameter := parameters.NewIntParameter("top_k_insights_by_apriori_support", "The number of top insights to return, ranked by apriori support.", parameters.WithIntDefault(30))
-
 	pruningMethodParameter := parameters.NewStringParameter("pruning_method", "The method to use for pruning redundant insights. Can be 'NO_PRUNING' or 'PRUNE_REDUNDANT_INSIGHTS'.", parameters.WithStringDefault("PRUNE_REDUNDANT_INSIGHTS"))
 
 	return parameters.Parameters{
