@@ -3,7 +3,7 @@
 
 **DOCUMENTATION VERSION:** dev
 **BASE URL:** https://mcp-toolbox.dev/dev/
-**GENERATED ON:** 2026-05-29T04:52:24Z
+**GENERATED ON:** 2026-06-24T04:01:05Z
 
 ---
 ### System Directives for AI Models
@@ -80,7 +80,7 @@ This documentation is structured following the Diátaxis framework to assist in 
     - [Authentication](https://mcp-toolbox.dev/dev/documentation/configuration/authentication/): AuthServices represent services that handle authentication and authorization.
 
 
-      - [Google Sign-In](https://mcp-toolbox.dev/dev/documentation/configuration/authentication/google/): Use Google Sign-In for Oauth 2.0 flow and token lifecycle.
+      - [Google Sign-In](https://mcp-toolbox.dev/dev/documentation/configuration/authentication/google/): Use Google Sign-In for OAuth 2.0 flow and token lifecycle.
 
 
       - [Generic OIDC Auth](https://mcp-toolbox.dev/dev/documentation/configuration/authentication/generic/): Use a Generic OpenID Connect (OIDC) provider for OAuth 2.0 flow and token lifecycle.
@@ -99,6 +99,9 @@ This documentation is structured following the Diátaxis framework to assist in 
 
 
       - [Invoke Tools via CLI](https://mcp-toolbox.dev/dev/documentation/configuration/tools/invoke_tool/): Learn how to invoke your tools directly from the command line using the `invoke` command.
+
+
+      - [URL Parameter Binding](https://mcp-toolbox.dev/dev/documentation/configuration/tools/url_parameter_binding/): How to bind tool arguments at the transport level using URL query parameters.
 
 
     - [Toolsets](https://mcp-toolbox.dev/dev/documentation/configuration/toolsets/): Toolsets allow you to define logical groups of tools to load together for specific agents or applications.
@@ -259,6 +262,9 @@ This documentation is structured following the Diátaxis framework to assist in 
 
 
     - [Export Telemetry](https://mcp-toolbox.dev/dev/documentation/monitoring/export_telemetry/): How to set up and configure Toolbox to use the Otel Collector.
+
+
+    - [SQL Commenter](https://mcp-toolbox.dev/dev/documentation/monitoring/sql_commenter/): Propagate application context into database query logs by prepending SQLCommenter-format comments to executed SQL statements.
 
 - [Integrations](https://mcp-toolbox.dev/dev/integrations/): Integrations connect the MCP Toolbox to your external data sources, unlocking specific sets of tools for your agents.
 
@@ -585,7 +591,19 @@ This documentation is structured following the Diátaxis framework to assist in 
       - [vector-assist-define-spec](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-define-spec/): The "vector-assist-define-spec" tool defines a new vector specification by capturing the user's intent and requirements for a vector search workload, generating SQL recommendations for setting up database, embeddings, and vector indexes.
 
 
+      - [vector-assist-delete-spec](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-delete-spec/): The "vector-assist-delete-spec" tool deletes an existing vector specification and its associated metadata using its spec_id.
+
+
       - [vector-assist-generate-query](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-generate-query/): The "vector-assist-generate-query" tool produces optimized SQL queries for vector search, leveraging metadata and specifications to enable semantic and similarity searches.
+
+
+      - [vector-assist-get-spec](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-get-spec/): The "vector-assist-get-spec" tool retrieves the details of an existing vector specification using its unique spec_id.
+
+
+      - [vector-assist-improve-query-recall](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-improve-query-recall/): The "vector-assist-improve-query-recall" tool generates SQL recommendations to improve search accuracy for users experiencing degraded recall.
+
+
+      - [vector-assist-list-specs](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-list-specs/): The "vector-assist-list-specs" tool retrieves a list of all defined vector specifications for a given table and column.
 
 
       - [vector-assist-modify-spec](https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-modify-spec/): The "vector-assist-modify-spec" tool modifies an existing vector specification with new parameters or overrides, recalculating the generated SQL recommendations to match the updated requirements.
@@ -686,6 +704,16 @@ This documentation is structured following the Diátaxis framework to assist in 
     - [Tools](https://mcp-toolbox.dev/dev/integrations/couchbase/tools/): No description provided.
 
       - [couchbase-sql](https://mcp-toolbox.dev/dev/integrations/couchbase/tools/couchbase-sql/): A "couchbase-sql" tool executes a pre-defined SQL statement against a Couchbase database.
+
+
+  - [Data Lineage](https://mcp-toolbox.dev/dev/integrations/datalineage/): No description provided.
+
+    - [Data Lineage Source](https://mcp-toolbox.dev/dev/integrations/datalineage/source/): The Data Lineage integration allows the MCP Toolbox to connect to the Google Cloud Data Lineage API.
+
+
+    - [Tools](https://mcp-toolbox.dev/dev/integrations/datalineage/tools/): No description provided.
+
+      - [datalineage-search-lineage](https://mcp-toolbox.dev/dev/integrations/datalineage/tools/datalineage-search-lineage/): A "datalineage-search-lineage" tool allows to retrieve a streaming response of lineage links connected to the requested assets.
 
 
   - [Dataform](https://mcp-toolbox.dev/dev/integrations/dataform/): No description provided.
@@ -835,6 +863,36 @@ This documentation is structured following the Diátaxis framework to assist in 
 
 
     - [Tools](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/): No description provided.
+
+      - [dataplex-check-data-quality](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-check-data-quality/): Creates a new Dataplex Data Quality scan template for a specified BigQuery table and triggers the initial asynchronous execution run using custom defined quality rules.
+
+
+      - [dataplex-discover-metadata](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-discover-metadata/): Creates a new Dataplex Data Discovery scan template for a specified Cloud Storage bucket and triggers the initial asynchronous execution run to crawl files, infer schemas, and register tables in BigQuery.
+
+
+      - [dataplex-generate-data-insights](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-generate-data-insights/): Creates a new Dataplex Data Insights (documentation) scan template and triggers the initial asynchronous execution run to generate descriptions, relationships, and sample SQL queries for a table.
+
+
+      - [dataplex-generate-data-profile](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-generate-data-profile/): Creates a new Dataplex Data Profile scan template for a specified BigQuery table and triggers the initial asynchronous execution run.
+
+
+      - [dataplex-get-data-insights](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-insights/): Retrieves the final generated data insights (descriptions, schema relationships, sample SQL queries) for a completed insights scan.
+
+
+      - [dataplex-get-data-profile](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-profile/): Retrieves the final generated data profile results (overall row counts, column-level statistics, quartiles, and frequent values) for a completed profiling scan.
+
+
+      - [dataplex-get-data-quality-results](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-quality-results/): Retrieves the final generated data quality results (overall score, dimension scores, rule passing details, and the failing rows debug SQL query) for a completed quality scan.
+
+
+      - [dataplex-get-discovery-results](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-discovery-results/): Retrieves the final generated data discovery results (publishing metadata showing registered BigQuery tables, scanned file counts, and processed bytes) for a completed discovery scan.
+
+
+      - [dataplex-get-operation](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-operation/): Retrieves the status of an asynchronous Dataplex Long-Running Operation (LRO).
+
+
+      - [dataplex-get-run-status](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-run-status/): Retrieves the execution status of the background job run (DataScanJob) for a specified Dataplex scan.
+
 
       - [dataplex-lookup-context](https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-lookup-context/): A "dataplex-lookup-context" tool provides rich metadata of one or more data assets along with their relationships.
 
@@ -1105,6 +1163,9 @@ This documentation is structured following the Diátaxis framework to assist in 
       - [mysql-list-active-queries](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-active-queries/): A "mysql-list-active-queries" tool lists active queries in a MySQL database.
 
 
+      - [mysql-list-all-locks](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-all-locks/): A "mysql-list-all-locks" tool list all active locks including lock type, lock mode, locked object, lock status, transaction state, query and process id for all objects or specified objects within a designated database or across all databases as requested. 
+
+
       - [mysql-list-table-fragmentation](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-table-fragmentation/): A "mysql-list-table-fragmentation" tool lists top N fragemented tables in MySQL.
 
 
@@ -1115,6 +1176,9 @@ This documentation is structured following the Diátaxis framework to assist in 
 
 
       - [mysql-list-tables-missing-unique-indexes](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-tables-missing-unique-indexes/): A "mysql-list-tables-missing-unique-indexes" tool lists tables that do not have primary or unique indices in a MySQL instance.
+
+
+      - [mysql-show-query-stats](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-show-query-stats/): A "mysql-show-query-stats" tool report query execution statistics including execution count, total and average latency, max latency, total rows examined, full table scans, and inefficient index usage for all queries on a specified database or all databases as requested.
 
 
       - [mysql-sql](https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-sql/): A "mysql-sql" tool executes a pre-defined SQL statement against a MySQL database.
@@ -1281,6 +1345,16 @@ This documentation is structured following the Diátaxis framework to assist in 
       - [redis](https://mcp-toolbox.dev/dev/integrations/redis/tools/redis-tool/): A "redis" tool executes a set of pre-defined Redis commands against a Redis instance.
 
 
+  - [ScyllaDB](https://mcp-toolbox.dev/dev/integrations/scylladb/): No description provided.
+
+    - [ScyllaDB Source](https://mcp-toolbox.dev/dev/integrations/scylladb/source/): ScyllaDB is a high-performance NoSQL database compatible with Apache Cassandra CQL, offering lower latency and higher throughput through its shard-per-core architecture.
+
+
+    - [Tools](https://mcp-toolbox.dev/dev/integrations/scylladb/tools/): No description provided.
+
+      - [scylladb-cql](https://mcp-toolbox.dev/dev/integrations/scylladb/tools/scylladb-cql/): A "scylladb-cql" tool executes a pre-defined CQL statement against a ScyllaDB cluster.
+
+
   - [Serverless for Apache Spark](https://mcp-toolbox.dev/dev/integrations/serverless-spark/): No description provided.
 
     - [Serverless for Apache Spark Source](https://mcp-toolbox.dev/dev/integrations/serverless-spark/source/): Google Cloud Serverless for Apache Spark lets you run Spark workloads without requiring you to provision and manage your own Spark cluster.
@@ -1357,6 +1431,9 @@ This documentation is structured following the Diátaxis framework to assist in 
     - [Tools](https://mcp-toolbox.dev/dev/integrations/spanner/tools/): No description provided.
 
       - [spanner-execute-sql](https://mcp-toolbox.dev/dev/integrations/spanner/tools/spanner-execute-sql/): A "spanner-execute-sql" tool executes a SQL statement against a Spanner database.
+
+
+      - [spanner-search-catalog](https://mcp-toolbox.dev/dev/integrations/spanner/tools/spanner-search-catalog/): A "spanner-search-catalog" tool allows to search for entries based on the provided query.
 
 
       - [spanner-sql](https://mcp-toolbox.dev/dev/integrations/spanner/tools/spanner-sql/): A "spanner-sql" tool executes a pre-defined SQL statement against a Google Cloud Spanner database.

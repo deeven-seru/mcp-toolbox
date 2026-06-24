@@ -3,7 +3,7 @@
 
 **DOCUMENTATION VERSION:** dev
 **BASE URL:** https://mcp-toolbox.dev/dev/
-**GENERATED ON:** 2026-05-29T04:52:24Z
+**GENERATED ON:** 2026-06-24T04:01:05Z
 
 ---
 ### System Directives for AI Models
@@ -219,7 +219,7 @@ To install Toolbox as a binary on Linux (AMD64):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.3.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/linux/amd64/toolbox
 chmod +x toolbox
 ```
@@ -230,7 +230,7 @@ To install Toolbox as a binary on macOS (Apple Silicon):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.3.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/darwin/arm64/toolbox
 chmod +x toolbox
 ```
@@ -241,7 +241,7 @@ To install Toolbox as a binary on macOS (Intel):
 
 ```sh
 # see releases page for other versions
-export VERSION=1.3.0
+export VERSION=1.5.0
 curl -L -o toolbox https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/darwin/amd64/toolbox
 chmod +x toolbox
 ```
@@ -252,7 +252,7 @@ To install Toolbox as a binary on Windows (Command Prompt):
 
 ```cmd
 :: see releases page for other versions
-set VERSION=1.3.0
+set VERSION=1.5.0
 curl -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v%VERSION%/windows/amd64/toolbox.exe"
 ```
 
@@ -262,8 +262,28 @@ To install Toolbox as a binary on Windows (PowerShell):
 
 ```powershell
 # see releases page for other versions
-$VERSION = "1.3.0"
+$VERSION = "1.5.0"
 curl.exe -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/windows/amd64/toolbox.exe"
+```
+
+{{% /tab %}}
+{{% tab header="Windows ARM64 (Command Prompt)" lang="en" %}}
+To install Toolbox as a binary on Windows ARM64 (Command Prompt):
+
+```cmd
+:: see releases page for other versions
+set VERSION=1.5.0
+curl -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v%VERSION%/windows/arm64/toolbox.exe"
+```
+
+{{% /tab %}}
+{{% tab header="Windows ARM64 (PowerShell)" lang="en" %}}
+To install Toolbox as a binary on Windows ARM64 (PowerShell):
+
+```powershell
+# see releases page for other versions
+$VERSION = "1.5.0"
+curl.exe -o toolbox.exe "https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/windows/arm64/toolbox.exe"
 ```
 
 {{% /tab %}}
@@ -274,7 +294,7 @@ You can also install Toolbox as a container:
 
 ```sh
 # see releases page for other versions
-export VERSION=1.3.0
+export VERSION=1.5.0
 docker pull us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:$VERSION
 ```
 
@@ -293,7 +313,7 @@ To install from source, ensure you have the latest version of
 [Go installed](https://go.dev/doc/install), and then run the following command:
 
 ```sh
-go install github.com/googleapis/mcp-toolbox@v1.3.0
+go install github.com/googleapis/mcp-toolbox@v1.5.0
 ```
 
 {{% /tab %}}
@@ -1042,8 +1062,8 @@ In this section, we will download Toolbox, configure our tools in a
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/$OS/toolbox
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -2113,43 +2133,30 @@ func main() {
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Documentation > Configuration > Authentication > Google Sign-In
 **URL:** https://mcp-toolbox.dev/dev/documentation/configuration/authentication/google/
-**Description:** Use Google Sign-In for Oauth 2.0 flow and token lifecycle.
+**Description:** Use Google Sign-In for OAuth 2.0 flow and token lifecycle.
 
 
 
 ## Getting Started
 
-Google Sign-In manages the OAuth 2.0 flow and token lifecycle. To integrate the
-Google Sign-In workflow to your web app [follow this guide][gsi-setup].
+Google Sign-In manages the OAuth 2.0 flow and token lifecycle. To integrate the Google Sign-In workflow to your web app, [follow this guide][gsi-setup].
 
-After setting up the Google Sign-In workflow, you should have registered your
-application and retrieved a [Client ID][client-id]. Configure your auth service
-in with the `Client ID`.
+After setting up Google Sign-In, configure your auth service in the toolbox. The Google auth provider supports two distinct validation modes:
+
+1. **Web App Claims (OIDC)**: Used to authenticate user requests in web applications.
+2. **MCP Authorization**: Used to secure the entire MCP server transport (SSE or Stdio).
 
 [gsi-setup]: https://developers.google.com/identity/sign-in/web/sign-in
-[client-id]: https://developers.google.com/identity/sign-in/web/sign-in#create_authorization_credentials
 
-## Behavior
+## Configuration Modes
 
-### Authorized Invocations
+### 1. Web App OIDC Authentication
+If you are developing a web application using the Toolbox and need to retrieve user claims from Google ID tokens sent in custom request headers, configure the `clientId` field.
 
-When using [Authorized Invocations][auth-invoke], a tool will be
-considered authorized if it has a valid Oauth 2.0 token that matches the Client
-ID.
+- **Header**: Expects the token in the `<name>_token` header (e.g. `my-google-auth_token`).
+- **Token Type**: Google OIDC ID tokens (JWT).
 
-[auth-invoke]: ../tools/_index.md#authorized-invocations
-
-### Authenticated Parameters
-
-When using [Authenticated Parameters][auth-params], any [claim provided by the
-id-token][provided-claims] can be used for the parameter.
-
-[auth-params]: ../tools/_index.md#authenticated-parameters
-[provided-claims]:
-    https://developers.google.com/identity/openid-connect/openid-connect#obtaininguserprofileinformation
-
-## Example
-
+#### Example
 ```yaml
 kind: authService
 name: my-google-auth
@@ -2157,17 +2164,55 @@ type: google
 clientId: ${YOUR_GOOGLE_CLIENT_ID}
 ```
 
-{{< notice tip >}}
-Use environment variable replacement with the format ${ENV_NAME}
-instead of hardcoding your secrets into the configuration file.
-{{< /notice >}}
+---
+
+### 2. MCP Authorization
+To secure all endpoints on your MCP server using Google OAuth tokens, enable `mcpEnabled` and specify the `audience` field.
+
+- **Header**: Expects the token in the standard `Authorization: Bearer <token>` header.
+- **Token Type**: Supports both Google **ID tokens (JWT)** and Google **opaque access tokens**.
+
+#### Example
+```yaml
+kind: authService
+name: my-google-auth
+type: google
+audience: ${YOUR_GOOGLE_CLIENT_ID}
+mcpEnabled: true
+scopesRequired:
+  - https://www.googleapis.com/auth/userinfo.email
+```
+
+> [!IMPORTANT]
+> - For **ID tokens (JWT)**: Local cryptographic signature verification is performed, which requires `audience` to be configured. If `audience` is not set, the provider will fall back to using `clientId`. If neither is configured, validation will fail.
+> - For **Opaque tokens**: The provider automatically queries Google's secure tokeninfo endpoint (`https://oauth2.googleapis.com/tokeninfo`) and validates the resulting audience against the configured `audience` field (falling back to `clientId` if `audience` is not set).
+
+---
+
+## Behavior
+
+### Authorized Invocations
+When using [Authorized Invocations][auth-invoke], a tool will be considered authorized if it has a valid OAuth 2.0 token that matches the Client ID or Audience.
+
+[auth-invoke]: ../tools/_index.md#authorized-invocations
+
+### Authenticated Parameters
+When using [Authenticated Parameters][auth-params], any [claim provided by the id-token][provided-claims] can be used for the parameter.
+
+[auth-params]: ../tools/_index.md#authenticated-parameters
+[provided-claims]: https://developers.google.com/identity/openid-connect/openid-connect#obtaininguserprofileinformation
+
+---
 
 ## Reference
 
-| **field** | **type** | **required** | **description**                                                  |
-|-----------|:--------:|:------------:|------------------------------------------------------------------|
-| type      |  string  |     true     | Must be "google".                                                |
-| clientId  |  string  |     true     | Client ID of your application from registering your application. |
+| **field**      | **type** | **required** | **description**                                                                                                                              |
+|----------------|:--------:|:------------:|----------------------------------------------------------------------------------------------------------------------------------------------|
+| type           |  string  |     true     | Must be "google".                                                                                                                            |
+| clientId       |  string  |    false     | Client ID of your application. Required for validating ID tokens in non-MCP web apps (`GetClaimsFromHeader`), and acts as a fallback for `audience` in MCP auth mode if `audience` is not configured. |
+| audience       |  string  |    false     | Expected audience. Required for validating ID tokens in MCP Auth mode (unless `clientId` is configured as a fallback). If specified, also validates opaque token audiences. Disallowed if `mcpEnabled` is false. |
+| mcpEnabled     |   bool   |    false     | Enforces global MCP transport authentication using the `Authorization: Bearer` header. Defaults to false.                                    |
+| scopesRequired | []string |    false     | A list of required scopes that must be present in the token's claims/metadata to be considered valid. Disallowed if `mcpEnabled` is false. |
 
 
 
@@ -2222,7 +2267,7 @@ When a request is received in this mode, the service will:
 #### Example
 
 ```yaml
-kind: authServices
+kind: authService
 name: my-generic-auth
 type: generic
 audience: ${YOUR_OIDC_AUDIENCE}
@@ -2286,7 +2331,7 @@ When a request is received in this mode, the service will:
 #### Example
 
 ```yaml
-kind: authServices
+kind: authService
 name: my-generic-auth
 type: generic
 audience: ${YOUR_TOKEN_AUDIENCE}
@@ -2297,28 +2342,19 @@ scopesRequired:
   - write
 ```
 
-#### Google Opaque Access Token Validation Example
+#### Google Authentication Note
 
-To use Google's `tokeninfo` endpoint for validating opaque access tokens, configure the service to use the `GET` method and `access_token` parameter name:
-
-```yaml
-kind: authServices
-name: google-auth
-type: generic
-audience: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
-authorizationServer: https://accounts.google.com
-introspectionEndpoint: https://www.googleapis.com/oauth2/v3/tokeninfo
-introspectionMethod: GET
-introspectionParamName: access_token
-mcpEnabled: true
-```
+> [!WARNING]
+> Do not configure Google's tokeninfo endpoint (`https://oauth2.googleapis.com/tokeninfo`) using `type: generic`. Because the generic OIDC service strictly enforces the presence and validity of the `active` claim (RFC 7662), and Google's tokeninfo endpoint does not return this claim, validation will fail.
+>
+> To authenticate with Google tokens, use the native [Google Sign-In](./google.md) auth service (`type: google`) instead, which natively handles Google's endpoints and token formats.
 
 #### Okta OIDC Configuration Example
 
 To secure your MCP server or tools using Okta as the identity provider:
 
 ```yaml
-kind: authServices
+kind: authService
 name: okta-auth
 type: generic
 audience: api://default # Or your custom Okta audience
@@ -2371,10 +2407,10 @@ ${ENV_NAME} instead of hardcoding your secrets into the configuration file.
 | audience               |  string  |     true     | The expected audience (`aud` claim) in the token. This ensures the token was minted specifically for your application. See [Getting Started](#getting-started) for details on OIDC audience matching. |
 | authorizationServer    |  string  |     true     | The base URL of your OIDC provider. The service will append `/.well-known/openid-configuration` to discover the JWKS URI. HTTP is allowed but logs a warning.                                         |
 | mcpEnabled             |   bool   |    false     | Indicates if MCP endpoint authentication should be applied. Defaults to false.                                                                                                                        |
-| scopesRequired         | []string |    false     | A list of required scopes that must be present in the token's `scope` claim to be considered valid.                                                                                                   |
-| introspectionEndpoint  |  string  |    false     | Optional override for the token introspection URL. Useful if the provider does not list it in OIDC discovery (e.g., Google).                                                                          |
-| introspectionMethod    |  string  |    false     | HTTP method to use for introspection. Defaults to "POST". Set to "GET" for providers like Google.                                                                                                     |
-| introspectionParamName |  string  |    false     | Parameter name for the token in the introspection request. Defaults to "token". Set to "access_token" for Google.                                                                                     |
+| scopesRequired         | []string |    false     | A list of required scopes that must be present in the token's `scope` claim to be considered valid. Disallowed if `mcpEnabled` is false.                                                             |
+| introspectionEndpoint  |  string  |    false     | Optional override for the token introspection URL. Useful if the provider does not list it in OIDC discovery (e.g., Google). Disallowed if `mcpEnabled` is false.                                   |
+| introspectionMethod    |  string  |    false     | HTTP method to use for introspection. Defaults to "POST". Set to "GET" for providers like Google. Disallowed if `mcpEnabled` is false.                                                               |
+| introspectionParamName |  string  |    false     | Parameter name for the token in the introspection request. Defaults to "token". Set to "access_token" for Google. Disallowed if `mcpEnabled` is false.                                               |
 
 
 
@@ -2400,6 +2436,9 @@ You can now use `--prebuilt` along `--config`, `--configs`, or
 `--config-folder` to combine prebuilt configs with custom tools.
 
 You can also combine multiple prebuilt configs.
+
+**Filtering Toolsets:**
+You can load a specific toolset from a prebuilt configuration by appending a `/` and the toolset name, for example: `--prebuilt=postgres/data` to only load the SQL tools.
 
 See [Usage Examples](../../../reference/cli.md#usage-examples).
 {{< /notice >}}
@@ -3038,6 +3077,107 @@ toolbox --prebuilt cloudsql-postgres invoke cloudsql-postgres-list-instances
 - **Tool not found:** Ensure the `<tool-name>` matches exactly what is in your YAML file and that the file is correctly loaded via `--config`.
 - **Invalid parameters:** Double-check your JSON syntax. The error message will usually indicate if the JSON parsing failed or if the parameters didn't match the tool's schema.
 - **Auth errors:** The `invoke` command currently does not support flows requiring client-side authorization (like OAuth flow initiation via the CLI). It works best for tools using service-side authentication (e.g., Application Default Credentials).
+
+
+
+
+========================================================================
+## URL Parameter Binding
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Documentation > Configuration > Tools > URL Parameter Binding
+**URL:** https://mcp-toolbox.dev/dev/documentation/configuration/tools/url_parameter_binding/
+**Description:** How to bind tool arguments at the transport level using URL query parameters.
+
+
+
+## About
+
+URL Parameter Binding is a transport-level feature for HTTP-based transports (such as SSE or standard HTTP POST endpoints) that allows you to bind specific arguments to tools at the connection or request level. This is useful for creating scoped connections for generic MCP clients where you want to restrict the client to a specific database, project, or instance without hardcoding these values in the server configuration for all users, or requiring the client to provide them.
+
+## How It Works
+
+When an MCP client connects or sends requests to the server via HTTP with query parameters (e.g., `http://localhost:5000/mcp/sse?project=my-project` or `http://localhost:5000/mcp?project=my-project`):
+
+1. **Schema Filtering**: The server automatically removes the bound parameters (like `project`) from the `inputSchema` of all tools returned by the `tools/list` endpoint. The client will not see these parameters and will not be prompted to provide them.
+2. **Argument Injection**: When the client calls any tool via `tools/call`, the server automatically injects the bound values from the URL into the tool arguments before execution.
+3. **Type Conversion**: Since URL query parameters are always extracted as strings, the server automatically attempts to convert the string value to the correct type based on the tool's parameter definition. It supports:
+   - **Simple types**: `integer`, `boolean`, and `number` (parsed from their string representation).
+   - **Complex types**: `array` and `object` (parsed from JSON-encoded string values, e.g. `?my_array=%5B%22a%22%2C%22b%22%5D` or `?my_map=%7B%22k%22%3A%22v%22%7D`).
+
+This effectively abstracts the bound parameters from the client, presenting a dynamically restricted schema while enforcing execution context at the transport layer.
+
+## Example
+
+Assume you have a tool that requires a `project` parameter.
+
+### 1. Connect or Request with Scoping
+
+The client connects to the SSE endpoint or sends a request to the standard HTTP POST endpoint with the parameter in the URL.
+
+For SSE, the client establishes a connection:
+
+```bash
+curl -N "http://localhost:5000/mcp/sse?project=my-project"
+```
+
+The server returns the message endpoint with the session ID and the preserved parameter:
+
+```text
+event: endpoint
+data: http://localhost:5000/mcp?sessionId=xyz&project=my-project
+```
+
+For standard HTTP POST requests, the client directly includes query parameters in the request URL:
+
+```bash
+curl -X POST "http://localhost:5000/mcp?project=my-project" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "id": 1, "method": "tools/list"}'
+```
+
+### 2. List Tools
+
+When the client lists tools, the `project` parameter is hidden:
+
+```json
+{
+  "result": {
+    "tools": [
+      {
+        "name": "my_tool",
+        "inputSchema": {
+          "type": "object",
+          "properties": {}, // 'project' is filtered out
+          "required": []
+        }
+      }
+    ]
+  }
+}
+```
+
+### 3. Call Tool
+
+The client calls the tool without providing `project` in the body:
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "my_tool"
+    // no 'project' argument provided here
+  }
+}
+```
+
+The server automatically injects `project: "my-project"` and executes the tool.
+
+## Safety Warning
+
+> [!WARNING]
+> **Never use URL parameter binding to pass sensitive credentials** like passwords, API keys, or auth tokens. URL query parameters are often logged by proxies, load balancers, and browser history, exposing them to security risks. Use this feature only for non-sensitive routing metadata like project IDs, database names, or region names.
+
+For sensitive credentials, use the standard `Authorization` header or environment variable substitution in the `tools.yaml` configuration.
 
 
 
@@ -4214,9 +4354,9 @@ Whether you are writing a simple script to execute a single query or building a 
 
 By using our SDKs, your application can dynamically request tools, bind parameters, add authentication, and execute commands at runtime. We offer official support and deep framework integrations across three primary languages:
 
-*   **[Python](./python-sdk/_index.md)**: Includes the Core SDK, along with native integrations for popular orchestrators like LangChain, LlamaIndex, and the ADK.
-*   **[JavaScript / TypeScript](./javascript-sdk/_index.md)**: Includes the Node.js Core SDK and integrations for the Agent Development Kit (ADK).
-*   **[Go](./go-sdk/_index.md/)**: Includes the Core SDK, plus dedicated packages for building agents with Genkit (`tbgenkit`) and the ADK.
+*   **[Python](./python-sdk/)**: Includes the Core SDK, along with native integrations for popular orchestrators like LangChain, LlamaIndex, and the ADK.
+*   **[JavaScript / TypeScript](./javascript-sdk/)**: Includes the Node.js Core SDK and integrations for the Agent Development Kit (ADK).
+*   **[Go](./go-sdk/)**: Includes the Core SDK, plus dedicated packages for building agents with Genkit (`tbgenkit`) and the ADK.
 
 Select your preferred language to explore installation instructions, quickstart guides, and framework-specific implementations.
 
@@ -4231,100 +4371,17 @@ Select your preferred language to explore installation instructions, quickstart 
 
 
 
+<html>
+  <head>
+    <title>Redirecting to the Python SDK API reference</title>
+    <link rel="canonical" href="https://py.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://py.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://py.mcp-toolbox.dev">follow this link to the Python SDK API reference</a>.</p>
+  </body>
+</html>
 
-## Overview
-
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-These Python SDKs act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient Python objects or functions representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using these SDKs, you can easily leverage your Toolbox-managed tools directly
-within your Python applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-* [`toolbox-adk`](adk):
-  Use this package if you are building your application using Google ADK (Agent Development Kit).
-  It provides tools that are directly compatible with the
-  Google ADK ecosystem (`BaseTool` / `BaseToolset` interface) handling authentication propagation, header management, and tool wrapping automatically.
-* [`toolbox-core`](core):
-  Use this package if you are not using LangChain/LangGraph or any other
-  orchestration framework, or if you need a framework-agnostic way to interact
-  with Toolbox tools (e.g., for custom orchestration logic or direct use in
-  Python scripts).
-* [`toolbox-langchain`](langchain):
-  Use this package if you are building your application using the LangChain or
-  LangGraph frameworks. It provides tools that are directly compatible with the
-  LangChain ecosystem (`BaseTool` interface), simplifying integration.
-* [`toolbox-llamaindex`](llamaindex):
-  Use this package if you are building your application using the LlamaIndex framework.
-  It provides tools that are directly compatible with the
-  LlamaIndex ecosystem (`BaseTool` interface), simplifying integration.
-
-
-## Available Packages
-
-This repository hosts the following Python packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) | PyPI Status |
-| :------ | :---------- | :---------- | :---------------------- | :---------- | :--------- 
-| `toolbox-adk` | Google ADK applications | Google ADK | `packages/toolbox-adk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-adk/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-adk.svg) |
-| `toolbox-core` | Framework-agnostic / Custom applications | Use directly / Custom | `packages/toolbox-core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-core/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-core.svg) |
-| `toolbox-langchain` | LangChain / LangGraph applications | LangChain / LangGraph | `packages/toolbox-langchain/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-langchain/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-langchain.svg) |
-| `toolbox-llamaindex` | LlamaIndex applications | LlamaIndex | `packages/toolbox-llamaindex/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-python/blob/main/packages/toolbox-llamaindex/README.md) | ![pypi version](https://img.shields.io/pypi/v/toolbox-llamaindex.svg) |
-
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the main MCP Toolbox service running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above) and install it:
-
-    ```bash
-    # For the Google ADK Integration
-    pip install google-adk[toolbox]
-
-    # OR
-    
-    # For the core, framework-agnostic SDK
-    pip install toolbox-core
-
-    # OR
-
-    # For LangChain/LangGraph integration
-    pip install toolbox-langchain
-
-    # OR
-
-    # For the LlamaIndex integration
-    pip install toolbox-llamaindex
-    ```
-
-
-
-{{< notice note >}}
-Source code for [python-sdk](https://github.com/googleapis/mcp-toolbox-sdk-python)
-{{< /notice >}}
-
-
-## Explore the Python SDKs
 
 
 
@@ -5211,6 +5268,49 @@ async with ToolboxClient("http://127.0.0.1:5000", telemetry_enabled=True) as too
 
 {{< notice note >}}
 If `telemetry_enabled=True` but no provider is configured, OpenTelemetry's no-op implementation is used — no data is exported and there is zero overhead. The optional `[telemetry]` extra must be installed for `telemetry_enabled=True` to have any effect; if it is not installed the flag is silently ignored.
+{{< /notice >}}
+
+### Per-call Telemetry Attributes
+
+In addition to the automatic instrumentation enabled by `telemetry_enabled=True`, you can attach **per-tool** telemetry attributes (such as the LLM model name, user ID, or agent ID) to outgoing invocations. These attributes are:
+
+* Sent to the Toolbox server in the MCP request `params._meta` under the `dev.mcp-toolbox/telemetry` key, where they are available to server-side instrumentation (e.g., SQL Commenter on database tools).
+* Recorded as attributes on the client-side OpenTelemetry span for the invocation when telemetry is enabled.
+
+Use the `TelemetryAttributes` model and the `add_telemetry_attributes()` method on a loaded tool:
+
+```py
+from toolbox_core import ToolboxClient, TelemetryAttributes
+
+async with ToolboxClient("http://127.0.0.1:5000", telemetry_enabled=True) as toolbox:
+    tool = await toolbox.load_tool("my-tool")
+
+    attrs = TelemetryAttributes(
+        llm_model="gemini-2.5-pro",
+        user_id="user-123",
+        agent_id="agent-abc",
+    )
+    instrumented_tool = tool.add_telemetry_attributes(attrs)
+
+    result = await instrumented_tool(param="value")
+```
+
+The same method is available on `ToolboxSyncTool` for synchronous usage.
+
+#### Fields and Wire Mapping
+
+`TelemetryAttributes` exposes three optional fields, which serialize to OpenTelemetry-style keys on the wire:
+
+| Python field | Span/Meta key |
+| :--- | :--- |
+| `llm_model` | `client.model` |
+| `user_id` | `client.user.id` |
+| `agent_id` | `client.agent.id` |
+
+{{< notice tip >}}
+* `add_telemetry_attributes()` returns a **new tool instance**; the original tool is left untouched (the same immutable pattern as `bind_param` and `add_auth_token_getter`).
+* Calling `add_telemetry_attributes()` a second time **replaces** the previous attributes rather than merging with them. Pass a single `TelemetryAttributes` bundle with all fields you want sent.
+* Unset fields and empty strings are dropped before the payload is sent, so they will not appear as empty values on the server.
 {{< /notice >}}
 
 
@@ -6152,71 +6252,17 @@ Configure your OpenTelemetry `TracerProvider` and `MeterProvider` before creatin
 
 
 
-## Overview
+<html>
+  <head>
+    <title>Redirecting to the JavaScript SDK API reference</title>
+    <link rel="canonical" href="https://js.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://js.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://js.mcp-toolbox.dev">follow this link to the JavaScript SDK API reference</a>.</p>
+  </body>
+</html>
 
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-These JS SDKs act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient JS objects or functions representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using these SDKs, you can easily leverage your Toolbox-managed tools directly
-within your JS applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-- [`@toolbox-sdk/core`](https://github.com/googleapis/mcp-toolbox-sdk-js/tree/main/packages/toolbox-core):
-  This is a framework agnostic way to connect the tools to popular frameworks
-  like Langchain, LlamaIndex and Genkit.
-- [`@toolbox-sdk/adk`](https://github.com/googleapis/mcp-toolbox-sdk-js/tree/main/packages/toolbox-adk):
-  This package provides a seamless way to connect to [Google ADK TS](https://github.com/google/adk-js).
-
-## Available Packages
-
-This repository hosts the following TS packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) | Npm Version |
-| :------ | :---------- | :---------- | :---------------------- | :---------- | :---------- |
-| `toolbox-core` | Framework-agnostic / Custom applications | Use directly / Custom | `packages/toolbox-core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-js/blob/main/packages/toolbox-core/README.md) | ![npm](https://img.shields.io/npm/v/@toolbox-sdk/core) |
-| `toolbox-adk` | ADK applications | ADK | `packages/toolbox-adk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-js/blob/main/packages/toolbox-adk/README.md) | ![npm](https://img.shields.io/npm/v/@toolbox-sdk/adk) |
-
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the main MCP Toolbox service running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above) and install it:
-
-    ```bash
-    # For the core, framework-agnostic SDK
-    npm install @toolbox-sdk/core
-
-    # For ADK applications
-    npm install @toolbox-sdk/adk
-    ```
-
-
-
-{{< notice note >}}
-Source code for [js-sdk](https://github.com/googleapis/mcp-toolbox-sdk-js)
-{{< /notice >}}
-
-## Explore the Javascript SDKs
 
 
 
@@ -7228,72 +7274,17 @@ await ai.generate({
 
 
 
-## Overview
+<html>
+  <head>
+    <title>Redirecting to the Go SDK API reference</title>
+    <link rel="canonical" href="https://go.mcp-toolbox.dev"/>
+    <meta http-equiv="refresh" content="0;url=https://go.mcp-toolbox.dev"/>
+  </head>
+  <body>
+    <p>If you are not automatically redirected, please <a href="https://go.mcp-toolbox.dev">follow this link to the Go SDK API reference</a>.</p>
+  </body>
+</html>
 
-The MCP Toolbox service provides a centralized way to manage and expose tools
-(like API connectors, database query tools, etc.) for use by GenAI applications.
-
-The Go SDK act as clients for that service. They handle the communication needed to:
-
-* Fetch tool definitions from your running Toolbox instance.
-* Provide convenient Go structs representing those tools.
-* Invoke the tools (calling the underlying APIs/services configured in Toolbox).
-* Handle authentication and parameter binding as needed.
-
-By using the SDK, you can easily leverage your Toolbox-managed tools directly
-within your Go applications or AI orchestration frameworks.
-
-## Which Package Should I Use?
-
-Choosing the right package depends on how you are building your application:
-
-- [**`core`**](core/):
-  This is a framework-agnostic way to connect tools to popular frameworks
-  like Google GenAI, LangChain, etc.
-
-- [**`tbadk`**](tbadk/):
-  This package provides a way to connect tools to ADK Go.
-
-- [**`tbgenkit`**](tbgenkit/):
-  This package provides functionality to convert the Tool fetched using the core package
-  into a Genkit Go compatible tool.
-
-## Available Packages
-
-This repository hosts the following Go packages. See the package-specific
-README for detailed installation and usage instructions:
-
-| Package | Target Use Case | Integration | Path | Details (README) |
-| :------ | :----------| :---------- | :---------------------- | :---------- |
-| [`core`](core/) | Framework-agnostic / Custom applications | Use directly / Custom | `core/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/core/README.md) |
-| [`tbadk`](tbadk/) | ADK Go | Use directly | `tbadk/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/tbadk/README.md) |
-| [`tbgenkit`](tbgenkit/) | Genkit Go | Along with core | `tbgenkit/` | 📄 [View README](https://github.com/googleapis/mcp-toolbox-sdk-go/blob/main/tbgenkit/README.md) |
-
-## Getting Started
-
-To get started using Toolbox tools with an application, follow these general steps:
-
-1. **Set up and Run the Toolbox Service:**
-
-    Before using the SDKs, you need the MCP Toolbox server running. Follow
-    the instructions here: [**Toolbox Getting Started
-    Guide**](https://github.com/googleapis/mcp-toolbox?tab=readme-ov-file#getting-started)
-
-2. **Install the Appropriate SDK:**
-
-    Choose the package based on your needs (see "[Which Package Should I Use?](#which-package-should-i-use)" above)
-    Use this command to install the SDK module
-
-    ```bash
-    # For the core, framework-agnostic SDK
-    go get github.com/googleapis/mcp-toolbox-sdk-go
-    ```
-
-{{< notice note >}}
-Source code for [Go-sdk](https://github.com/googleapis/mcp-toolbox-sdk-go)
-{{< /notice >}}
-
-## Explore the Go SDKs
 
 
 
@@ -9852,19 +9843,23 @@ After you install Looker in the MCP Store, resources and tools from the server a
 
 {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -10354,19 +10349,23 @@ expose your developer assistant tools to a MySQL instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -10680,19 +10679,23 @@ expose your developer assistant tools to a Neo4j instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11003,19 +11006,23 @@ to expose your developer assistant tools to an Oracle instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11348,19 +11355,23 @@ Omni](https://cloud.google.com/alloydb/omni/docs/overview).
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -11701,19 +11712,23 @@ instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -12027,19 +12042,23 @@ to expose your developer assistant tools to a SQLite instance:
    <!-- {x-release-please-start-version} -->
    {{< tabpane persist=header >}}
 {{< tab header="linux/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/linux/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/linux/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/arm64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/arm64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/arm64/toolbox
 {{< /tab >}}
 
 {{< tab header="darwin/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/darwin/amd64/toolbox
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/darwin/amd64/toolbox
 {{< /tab >}}
 
 {{< tab header="windows/amd64" lang="bash" >}}
-curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/windows/amd64/toolbox.exe
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -12357,6 +12376,10 @@ curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/darwin/
 {{< tab header="windows/amd64" lang="bash" >}}
 curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/amd64/toolbox.exe
 {{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/arm64/toolbox.exe
+{{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
 
@@ -12672,6 +12695,10 @@ curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/darwin/
 {{< tab header="windows/amd64" lang="bash" >}}
 curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/amd64/toolbox.exe
 {{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/arm64/toolbox.exe
+{{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
 
@@ -12986,6 +13013,10 @@ curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/darwin/
 
 {{< tab header="windows/amd64" lang="bash" >}}
 curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/amd64/toolbox.exe
+{{< /tab >}}
+
+{{< tab header="windows/arm64" lang="bash" >}}
+curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.15.0/windows/arm64/toolbox.exe
 {{< /tab >}}
 {{< /tabpane >}}
     <!-- {x-release-please-end} -->
@@ -13379,16 +13410,29 @@ deployment will time out.
         # --allow-unauthenticated # https://cloud.google.com/run/docs/authenticating/public#gcloud
     ```
 
-    If you are using a VPC network, use the command below:
+    If you are using a VPC network, use the command below. The
+    `--network default` and `--subnet default` values are examples for the
+    default VPC network and the default subnet in the Cloud Run region. If your
+    database uses a different VPC network or subnet, replace these values. To
+    find the values for your project, run:
 
     ```bash
+    gcloud compute networks list
+    gcloud compute networks subnets list --regions=us-central1
+    ```
+
+    For more information, see [Direct VPC egress with a VPC
+    network](https://cloud.google.com/run/docs/configuring/vpc-direct-vpc).
+
+    ```bash
+    # Replace default values if your database uses a different VPC network
+    # or subnet.
     gcloud run deploy toolbox \
         --image $IMAGE \
         --service-account toolbox-identity \
         --region us-central1 \
         --set-secrets "/app/tools.yaml=tools:latest" \
         --args="--config=/app/tools.yaml","--address=0.0.0.0","--port=8080" \
-        # TODO(dev): update the following to match your VPC if necessary
         --network default \
         --subnet default
         # --allow-unauthenticated # https://cloud.google.com/run/docs/authenticating/public#gcloud
@@ -13427,13 +13471,14 @@ origins permitted to access the server.
     If you are using a VPC network, use the command below:
 
     ```bash
+    # Replace default values if your database uses a different VPC network
+    # or subnet.
     gcloud run deploy toolbox \
         --image $IMAGE \
         --service-account toolbox-identity \
         --region us-central1 \
         --set-secrets "/app/tools.yaml=tools:latest" \
         --args="--config=/app/tools.yaml","--address=0.0.0.0","--port=8080","--allowed-origins=$URL","--allowed-hosts=$HOST" \
-        # TODO(dev): update the following to match your VPC if necessary
         --network default \
         --subnet default
         # --allow-unauthenticated # https://cloud.google.com/run/docs/authenticating/public#gcloud
@@ -13539,6 +13584,7 @@ contain the specific error message needed to diagnose the problem.
       Secret Accessor** (`roles/secretmanager.secretAccessor`) IAM role.
 
 - **Cloud Run Connections via IAP:** Currently we do not support Cloud Run connections via [IAP](https://docs.cloud.google.com/iap/docs/concepts-overview). Please disable IAP if you are using it.
+
 
 
 
@@ -13958,6 +14004,7 @@ Understanding the internal state of your system is critical when deploying AI ag
 
 * **[Telemetry](telemetry/index.md)**: Learn how to configure logging levels and understand the core metrics and traces emitted by the Toolbox server.
 * **[Export Telemetry](export_telemetry.md)**: Discover how to deploy and configure an OpenTelemetry (OTel) Collector.
+* **[SQL Commenter](sql_commenter.md)**: Propagate application context into database query logs by prepending SQLCommenter-format comments to executed SQL statements.
 
 
 
@@ -14333,8 +14380,10 @@ The following flags are used to determine Toolbox's telemetry configuration:
 | **flag**                   | **type** | **description**                                                                                                                                                                                           |
 |----------------------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `--telemetry-gcp`          | bool     | Enable exporting directly to Google Cloud Monitoring. Default is `false`.                                                                                                                                 |
+| `--telemetry-gcp-project`  | string   | Google Cloud project ID used for `--telemetry-gcp`. If unset, Toolbox falls back to `GOOGLE_CLOUD_PROJECT` when available.                                                                              |
 | `--telemetry-otlp`         | string   | Enable exporting using OpenTelemetry Protocol (OTLP) to the specified endpoint (e.g. "127.0.0.1:4318"). To pass an insecure endpoint here, set environment variable `OTEL_EXPORTER_OTLP_INSECURE=true`. |
 | `--telemetry-service-name` | string   | Sets the value of the `service.name` resource attribute. Default is `toolbox`.                                                                                                                            |
+| `--sql-commenter`          | bool     | Enable prepending [SQLCommenter](../sql_commenter.md)-format comments to executed SQL statements. Default is `false`.                                                                                       |
 
 In addition to the flags noted above, you can also make additional configuration
 for OpenTelemetry via the [General SDK Configuration][sdk-configuration] through
@@ -14350,6 +14399,14 @@ To enable Google Cloud Exporter:
 ```bash
 ./toolbox --telemetry-gcp
 ```
+
+To explicitly set the telemetry project:
+
+```bash
+./toolbox --telemetry-gcp --telemetry-gcp-project="my-project-id"
+```
+
+If `--telemetry-gcp-project` is not set, Toolbox uses `GOOGLE_CLOUD_PROJECT` when available.
 
 To enable OTLP Exporter, provide Collector endpoint:
 
@@ -14499,6 +14556,102 @@ directly from Toolbox without running a local Collector.
 
 Toolbox will now export traces and metrics directly to Agnost. No local
 Collector is required.
+
+
+
+
+========================================================================
+## SQL Commenter
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Documentation > Monitoring & Observability > SQL Commenter
+**URL:** https://mcp-toolbox.dev/dev/documentation/monitoring/sql_commenter/
+**Description:** Propagate application context into database query logs by prepending SQLCommenter-format comments to executed SQL statements.
+
+
+
+[SQLCommenter](https://google.github.io/sqlcommenter/) is an open-source
+convention that propagates application context into the database by prepending a
+structured comment to every SQL statement before it is executed. The comment is
+stripped before query planning, so it has no effect on results — but it shows up
+verbatim in database query logs and slow-query logs, letting you correlate a
+specific SQL statement back to the MCP client, LLM tool invocation, model, user,
+agent, and distributed trace that triggered it.
+
+This closes the observability gap between the application-level traces emitted by
+Toolbox and the database-level logs emitted by your underlying database engine.
+
+## Enabling SQL Commenter
+
+SQL Commenter is opt-in and disabled by default. Enable it on a per-source basis by setting the `sqlCommenter` field to `true` in a source's configuration file:
+
+```yaml
+sources:
+  - name: my-pg-source
+    type: postgres
+    # ...
+    sqlCommenter: true
+```
+
+If you are exporting telemetry using OpenTelemetry, the `traceparent` attribute embedded in the SQL comment will automatically be part of the same distributed trace exported by Toolbox:
+
+```bash
+./toolbox --telemetry-otlp="127.0.0.1:4553"
+```
+
+## Supported Sources
+
+SQL Commenter is supported on the following database sources:
+
+* `alloydb-postgres`
+* `cloud-sql-postgres`
+* `cloud-sql-mysql`
+* `postgres`
+* `mysql`
+* `sqlite`
+
+## Comment Format
+
+When enabled, Toolbox prepends a SQLCommenter-format comment to every SQL
+statement executed against a supported source. Keys are sorted alphabetically,
+values are URL-encoded, and pairs are joined by commas inside a `/* … */`
+block. For example:
+
+```sql
+/*client='toolbox-langchain-python%2Fv0.1.0',client.model='gemini-2.5-flash',db.system.name='postgresql',server='genai-toolbox%2F1.1.0',tool.name='search_user',traceparent='00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01'*/ SELECT * FROM users WHERE id = $1;
+```
+
+## Attributes
+
+| **Attribute**       | **Source**                                                                                       | **Description**                                                                                |
+|---------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| `traceparent`       | Active OpenTelemetry span context.                                                               | W3C Trace Context header tying the SQL statement to the distributed trace for this invocation. |
+| `server`            | Toolbox build (`genai-toolbox/<version>`).                                                       | Identifies the Toolbox server name and version that issued the query.                          |
+| `tool.name`         | The tool being invoked.                                                                          | The tool whose execution triggered the SQL.                                                    |
+| `db.system.name`    | The database engine (e.g. `postgresql`, `mysql`, `sqlite`).                                      | Identifies the database backend.                                                               |
+| `client`            | MCP client `params._meta["dev.mcp-toolbox/telemetry"]["client.name"]` and/or `["client.version"]` (joined by `/`). | Identifies the ADK or application that initiated the MCP request.                              |
+| `client.model`      | MCP client `params._meta["dev.mcp-toolbox/telemetry"]["client.model"]`.                                 | The LLM model that produced the tool call.                                                     |
+| `client.user.id`    | MCP client `params._meta["dev.mcp-toolbox/telemetry"]["client.user.id"]`.                               | End-user identifier supplied by the client.                                                    |
+| `client.agent.id`   | MCP client `params._meta["dev.mcp-toolbox/telemetry"]["client.agent.id"]`.                              | Agent identifier supplied by the client.                                                       |
+
+Client-supplied attributes (`client`, `client.model`, `client.user.id`,
+`client.agent.id`) are populated from the MCP request's
+`params._meta["dev.mcp-toolbox/telemetry"]` field. Attributes that are not
+provided by the client or not applicable in the current context are omitted
+from the comment.
+
+## Populating Client Attributes from SDKs
+
+Toolbox SDKs that support the `dev.mcp-toolbox/telemetry` meta field will
+populate `client.*` attributes automatically. With the Python SDK, you can
+attach per-tool attributes such as model name, user ID, and agent ID using
+`TelemetryAttributes`. See [Per-call Telemetry Attributes](../../connect-to/toolbox-sdks/python-sdk/core/#per-call-telemetry-attributes)
+for details.
+
+{{< notice tip >}}
+The comment is plain text in your database logs. To follow a slow query back to
+its trace, take the `traceparent` value and search your tracing backend for the
+matching trace ID (the second segment of the W3C `traceparent`).
+{{< /notice >}}
 
 
 
@@ -15337,6 +15490,7 @@ The interface is identical, so there's no additional configuration required on t
 | user      |  string  |    false     | Name of the Postgres user to connect as (e.g. "my-pg-user"). Defaults to IAM auth using [ADC][adc] email if unspecified. |
 | password  |  string  |    false     | Password of the Postgres user (e.g. "my-password"). Defaults to attempting IAM authentication if unspecified.            |
 | ipType    |  string  |    false     | IP Type of the AlloyDB instance; must be one of `public` or `private`. Default: `public`.                                |
+| sqlCommenter | boolean |  false     | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies. |
 
 
 
@@ -15619,7 +15773,7 @@ In this section, we will download and install the Toolbox binary.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
     export VERSION="0.30.0"
     curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/$OS/toolbox
     ```
@@ -17148,7 +17302,7 @@ to use BigQuery, and then run the Toolbox server.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
     curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.30.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
@@ -17793,7 +17947,7 @@ In this section, we will download Toolbox, configure our tools in a
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
     curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v0.30.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
@@ -17983,6 +18137,9 @@ In this section, we will download Toolbox, configure our tools in a
         to impersonate when making BigQuery and Dataplex API calls. The
         authenticated principal must have `roles/iam.serviceAccountTokenCreator`
         on the target service account.
+    *   `BIGQUERY_MAXIMUM_BYTES_BILLED`: (Optional) Per-query bytes scanned cap
+        (in bytes). Queries that exceed this limit fail before executing and
+        cost nothing.
 *   **Permissions:**
     *   **BigQuery User** (`roles/bigquery.user`) to execute queries and view
         metadata.
@@ -21493,6 +21650,7 @@ instead of hardcoding your secrets into the configuration file.
 | user      |  string  |    false     | Name of the MySQL user to connect as (e.g "my-mysql-user"). Defaults to IAM auth using [ADC][adc] email if unspecified. |
 | password  |  string  |    false     | Password of the MySQL user (e.g. "my-password"). Defaults to attempting IAM authentication if unspecified.              |
 | ipType    |  string  |    false     | IP Type of the Cloud SQL instance, must be either `public`,  `private`, or `psc`. Default: `public`.                    |
+| sqlCommenter | boolean |  false     | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies. |
 
 
 
@@ -21553,6 +21711,8 @@ instead of hardcoding your secrets into the configuration file.
     *   `list_tables_missing_unique_indexes`: Looks for tables that do not have
         primary or unique key contraint.
     *   `list_table_fragmentation`: Displays table fragmentation in MySQL.
+    *   `list_all_locks`: Lists all current locks on the database.
+    *   `show_query_stats`: Show query execution statistics.
     *   `list_table_stats`: Displays table statistics in MySQL.
 
 
@@ -21715,6 +21875,7 @@ The interface is identical, so there's no additional configuration required on t
 | user      |  string  |    false     | Name of the Postgres user to connect as (e.g. "my-pg-user"). Defaults to IAM auth using [ADC][adc] email if unspecified. |
 | password  |  string  |    false     | Password of the Postgres user (e.g. "my-password"). Defaults to attempting IAM authentication if unspecified.            |
 | ipType    |  string  |    false     | IP Type of the Cloud SQL instance; must be one of `public`, `private`, or `psc`. Default: `public`.                      |
+| sqlCommenter | boolean |  false     | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies. |
 
 
 
@@ -21866,6 +22027,64 @@ description: "This tool defines a new vector specification by capturing the user
 
 
 ========================================================================
+## vector-assist-delete-spec
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud SQL for PostgreSQL > Tools > vector-assist-delete-spec
+**URL:** https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-delete-spec/
+**Description:** The "vector-assist-delete-spec" tool deletes an existing vector specification and its associated metadata using its spec_id.
+
+
+
+## About
+
+The `vector-assist-delete-spec` tool deletes an existing vector specification using its `spec_id`. 
+
+Use this tool when a user explicitly requests to delete, remove, or clean up an existing vector specification which was created in the context of the vector assist tools. Under the hood, this tool connects to the target database and executes the `vector_assist.delete_spec` function.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+{{< notice tip >}} 
+Ensure that your target PostgreSQL database has the required `vector_assist` extension installed, in order for this tool to execute successfully.
+{{< /notice >}}
+
+## Parameters
+
+The tool takes the following input parameters:
+
+| Parameter | Type   | Description                                | Required |
+| :-------- | :----- | :----------------------------------------- | :------- |
+| `spec_id` | string | Unique ID for the vector spec to delete.   | Yes      |
+
+> Note :
+> Parameters are marked as required or optional based on the tool's parameter definitions. 
+> The underlying function may perform further validation on optional parameters to ensure 
+> all necessary data is available before returning a response.
+
+## Example
+
+```yaml
+kind: tool
+name: delete_spec
+type: vector-assist-delete-spec
+source: my-database-source
+description: "This tool deletes an existing vector specification using its spec_id. Use this tool when a user explicitly requests to delete, remove, or clean up an existing vector specification which was created in the context of the vector assist tools."
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                      |
+|-------------|:--------:|:------------:|------------------------------------------------------|
+| type        |  string  |     true     | Must be "vector-assist-delete-spec".                 |
+| source      |  string  |     true     | Name of the source the SQL should execute on.        |
+| description |  string  |    false     | Description of the tool that is passed to the agent. |
+
+
+
+========================================================================
 ## vector-assist-generate-query
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud SQL for PostgreSQL > Tools > vector-assist-generate-query
@@ -21927,6 +22146,188 @@ description: "This tool generates optimized SQL queries for vector search by lev
 | **field**   | **type** | **required** | **description**                                      |
 |-------------|:--------:|:------------:|------------------------------------------------------|
 | type        |  string  |     true     | Must be "vector-assist-generate-query".                 |
+| source      |  string  |     true     | Name of the source the SQL should execute on.        |
+| description |  string  |    false     | Description of the tool that is passed to the agent. |
+
+
+
+========================================================================
+## vector-assist-get-spec
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud SQL for PostgreSQL > Tools > vector-assist-get-spec
+**URL:** https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-get-spec/
+**Description:** The "vector-assist-get-spec" tool retrieves the details of an existing vector specification using its unique spec_id.
+
+
+
+## About
+
+The `vector-assist-get-spec` tool retrieves the details of an existing vector specification using its unique `spec_id`. 
+
+Use this tool to retrieve a vector specification which was created in the context of the vector assist tools. It allows users to inspect the detailed parameters and current state of a particular vector setup. Under the hood, this tool connects to the target database and executes the `vector_assist.get_spec` function.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+{{< notice tip >}} 
+Ensure that your target PostgreSQL database has the required `vector_assist` extension installed, in order for this tool to execute successfully.
+{{< /notice >}}
+
+## Parameters
+
+The tool takes the following input parameters:
+
+| Parameter | Type   | Description                      | Required |
+| :-------- | :----- | :------------------------------- | :------- |
+| `spec_id` | string | Unique ID for the vector spec.   | Yes      |
+
+> Note : 
+> Parameters are marked as required or optional based on the tool's parameter definitions. 
+> The underlying function may perform further validation on optional parameters to ensure 
+> all necessary data is available before returning a response.
+
+## Example
+
+```yaml
+kind: tool
+name: get_spec
+type: vector-assist-get-spec
+source: my-database-source
+description: "This tool retrieves the details of an existing vector specification using its unique 'spec_id'. Use this tool to retrieve a vector specification which was created in the context of the vector assist tools."
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                      |
+|-------------|:--------:|:------------:|------------------------------------------------------|
+| type        |  string  |     true     | Must be "vector-assist-get-spec".                    |
+| source      |  string  |     true     | Name of the source the SQL should execute on.        |
+| description |  string  |    false     | Description of the tool that is passed to the agent. |
+
+
+
+
+========================================================================
+## vector-assist-improve-query-recall
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud SQL for PostgreSQL > Tools > vector-assist-improve-query-recall
+**URL:** https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-improve-query-recall/
+**Description:** The "vector-assist-improve-query-recall" tool generates SQL recommendations to improve search accuracy for users experiencing degraded recall.
+
+
+
+## About
+
+The `vector-assist-improve-query-recall` tool is designed to troubleshoot and optimize existing vector search workloads when a user reports irrelevant results, poor accuracy, or degraded recall. 
+
+It determines the optimal tuning parameter (such as `hnsw.ef_search`) for an active vector index to improve the search results. The tool evaluates the target recall and outputs an actionable SQL query recommendation (e.g., `SET hnsw.ef_search TO ...`) that must be executed as a next action using the `execute_sql` tool.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+{{< notice tip >}} 
+Ensure that your target PostgreSQL database has the required `vector_assist` extension installed. This tool requires an existing HNSW index to function properly; if the table lacks an existing vector setup, use the `define_spec` tool instead.
+{{< /notice >}}
+
+## Parameters
+
+The tool takes the following input parameters:
+
+| Parameter            | Type    | Description                                                                 | Required |
+| :------------------- | :------ | :-------------------------------------------------------------------------- | :------- |
+| `table_name`         | string  | Table name experiencing degraded vector search recall.                      | Yes      |
+| `vector_column_name` | string  | Column name containing the vector embeddings.                               | Yes      |
+| `index_name`         | string  | Name of the vector index to tune.                                           | Yes      |
+| `schema_name`        | string  | Schema name of the table (default is `public`).                             | No       |
+| `top_k`              | integer | Top k value for the vector search (default is `10`).                        | No       |
+| `target_recall`      | float   | Target recall value for search results (default is `0.95`).                 | No       |
+| `distance_func`      | string  | Distance function used for the vector search similarity (default is `cosine`).| No       |
+
+> Note : 
+> Parameters are marked as required or optional based on the tool's parameter definitions. 
+> The underlying function may perform further validation on optional parameters to ensure 
+> all necessary data is available before returning a response.
+
+## Example
+
+```yaml
+kind: tool
+name: improve_query_recall
+type: vector-assist-improve-query-recall
+source: my-database-source
+description: "Use this tool to troubleshoot and optimize existing vector search workloads when a user reports irrelevant results, poor accuracy, or degraded recall. It determines the optimal tuning parameter (such as ef_search) for an active vector index to improve the search results. The tool outputs an actionable SQL query recommendation to be executed as a next action using the 'execute_sql' tool."
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                      |
+|-------------|:--------:|:------------:|------------------------------------------------------|
+| type        |  string  |     true     | Must be "vector-assist-improve-query-recall".        |
+| source      |  string  |     true     | Name of the source the SQL should execute on.        |
+| description |  string  |    false     | Description of the tool that is passed to the agent. |
+
+
+
+========================================================================
+## vector-assist-list-specs
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Cloud SQL for PostgreSQL > Tools > vector-assist-list-specs
+**URL:** https://mcp-toolbox.dev/dev/integrations/cloud-sql-pg/tools/vector-assist-list-specs/
+**Description:** The "vector-assist-list-specs" tool retrieves a list of all defined vector specifications for a given table and column.
+
+
+
+## About
+
+The `vector-assist-list-specs` tool lists all defined vector specifications for a given table and column name. 
+
+Use this tool to list vector specifications which were created in the context of the vector assist tools. It provides a high-level overview of existing vector setups. Under the hood, this tool connects to the target database and executes the `vector_assist.list_specs` function.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+{{< notice tip >}} 
+Ensure that your target PostgreSQL database has the required `vector_assist` extension installed, in order for this tool to execute successfully.
+{{< /notice >}}
+
+## Parameters
+
+The tool takes the following input parameters:
+
+| Parameter     | Type   | Description                                          | Required |
+| :------------ | :----- | :--------------------------------------------------- | :------- |
+| `table_name`  | string | Table name to list vector specifications for.        | Yes      |
+| `column_name` | string | Column name to list vector specifications for.       | No       |
+
+> Note : 
+> Parameters are marked as required or optional based on the tool's parameter definitions. 
+> The underlying function may perform further validation on optional parameters to ensure 
+> all necessary data is available before returning a response.
+
+## Example
+
+```yaml
+kind: tool
+name: list_specs
+type: vector-assist-list-specs
+source: my-database-source
+description: "This tool lists all defined vector specifications for a given table and column name. Use this tool to list vector specifications which were created in the context of the vector assist tools."
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                      |
+|-------------|:--------:|:------------:|------------------------------------------------------|
+| type        |  string  |     true     | Must be "vector-assist-list-specs".                  |
 | source      |  string  |     true     | Name of the source the SQL should execute on.        |
 | description |  string  |    false     | Description of the tool that is passed to the agent. |
 
@@ -22361,6 +22762,11 @@ kind: source
 name: my-gcs-source
 type: "cloud-storage"
 project: "my-project-id"
+allowedBuckets:
+  - "my-app-bucket"
+  - "my-backup-bucket"
+allowedLocalRoots:
+  - "/workspace"
 ```
 
 ## Reference
@@ -22369,6 +22775,8 @@ project: "my-project-id"
 |-----------|:--------:|:------------:|---------------------------------------------------------------------------------|
 | type      |  string  |     true     | Must be "cloud-storage".                                                        |
 | project   |  string  |     true     | Id of the GCP project the configured source is associated with (e.g. "my-project-id"). |
+| allowedBuckets | []string |    false     | List of GCS bucket names allowed for operations. If omitted, all buckets are allowed. |
+| allowedLocalRoots | []string |    false     | List of absolute local filesystem directories allowed for file uploads and downloads. If omitted, all paths are allowed. |
 
 
 
@@ -25046,6 +25454,207 @@ templateParameters:
 | parameters         |   [parameters](../../../documentation/configuration/tools/_index.md#specifying-parameters)    |    false     | List of [parameters](../../../documentation/configuration/tools/_index.md#specifying-parameters) that will be used with the SQL statement.                                              |
 | templateParameters | [templateParameters](../../../documentation/configuration/tools/_index.md#template-parameters) |    false     | List of [templateParameters](../../../documentation/configuration/tools/_index.md#template-parameters) that will be inserted into the SQL statement before executing prepared statement. |
 | authRequired       |                array[string]                 |    false     | List of auth services that are required to use this tool.                                                                              |
+
+
+
+
+========================================================================
+## Data Lineage
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Data Lineage
+**URL:** https://mcp-toolbox.dev/dev/integrations/datalineage/
+**Description:** None
+
+
+
+
+
+========================================================================
+## Data Lineage Source
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Data Lineage > Data Lineage Source
+**URL:** https://mcp-toolbox.dev/dev/integrations/datalineage/source/
+**Description:** The Data Lineage integration allows the MCP Toolbox to connect to the Google Cloud Data Lineage API.
+
+
+
+## About
+
+The Data Lineage integration allows the MCP Toolbox to connect to the Google Cloud Data Lineage API. It enables large language models to query and analyze data lineage, representing the flow of data between source (upstream) and target (downstream) assets.
+
+This integration supports:
+
+- **Entity-Level Lineage:** Tracking data flow between entire assets (e.g., tables, files).
+- **Column-Level Lineage (CLL):** Tracking data flow between specific fields or columns within assets.
+
+## Available Tools
+
+{{< list-tools >}}
+
+## Example
+
+Here is an example configuration for the Data Lineage source:
+
+```yaml
+kind: source
+name: my-lineage-source
+type: datalineage
+project: my-gcp-project-id
+```
+
+## Reference
+
+| **field** | **type** | **required** | **description**                                                  |
+| :-------- | :------: | :----------: | :--------------------------------------------------------------- |
+| name      |  string  |     true     | Unique name for this source instance.                            |
+| type      |  string  |     true     | Must be "datalineage".                                           |
+| project   |  string  |     true     | The Google Cloud Project ID where the lineage events are stored. |
+
+
+
+
+========================================================================
+## Tools
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Data Lineage > Tools
+**URL:** https://mcp-toolbox.dev/dev/integrations/datalineage/tools/
+**Description:** None
+
+
+
+
+
+========================================================================
+## datalineage-search-lineage
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Data Lineage > Tools > datalineage-search-lineage
+**URL:** https://mcp-toolbox.dev/dev/integrations/datalineage/tools/datalineage-search-lineage/
+**Description:** A "datalineage-search-lineage" tool allows to retrieve a streaming response of lineage links connected to the requested assets.
+
+
+
+## About
+
+A `datalineage-search-lineage` tool retrieves lineage links (representing data flow between source and target assets) by performing a breadth-first search in the given direction.
+
+It supports both entity-level and column-level lineage (CLL).
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+To retrieve lineage links, the authorized Google Cloud identity must have the following permissions:
+
+- `datalineage.events.get` on the project where the link is stored (for entity-level lineage).
+- `datalineage.events.getFields` on the project where the link is stored (for column-level lineage).
+- `datalineage.processes.get` on the project where the process is stored (if retrieving process details).
+
+## Parameters
+
+### `locations` (Array of Strings, Required)
+
+The locations to search in (e.g., `['us', 'eu', 'global']`).
+
+- Must contain at least **one** location.
+- The first location in the list is used as the **parent location** to initiate the search and for billing/quota.
+- The search will retrieve links from all valid locations provided in the list.
+
+### `root_entities` (Array of Objects, Required)
+
+The starting entities (roots) for the lineage graph traversal. The maximum number of entities is 20.
+Each object represents an entity reference and must contain:
+
+- `fully_qualified_name` (String, Required): The FQN of the entity (e.g., a BigQuery table FQN).
+- `fields` (Array of Strings, Optional): The fields/columns of the entity to search for **Column-Level Lineage (CLL)**. Supports wildcards.
+
+### `direction` (String, Required)
+
+The direction of the search. Supported values:
+
+- `UPSTREAM`: Search for assets that contribute to the root entities (sources).
+- `DOWNSTREAM`: Search for assets that are derived from the root entities (targets).
+
+### `max_depth` (Integer, Optional)
+
+The maximum depth of the search in the lineage graph.
+
+- **API Default:** `5`
+- **Maximum:** `100`
+- **Note:** If omitted, the GCP API default of `5` will be used.
+
+### `max_results` (Integer, Optional)
+
+The maximum number of links to return in the response.
+
+- **API Default:** `1000`
+- **Maximum:** `10000`
+- **Note:** If omitted, the GCP API default of `1000` will be used.
+
+### `max_process_per_link` (Integer, Optional)
+
+The maximum number of processes to return per link.
+
+- **API Default:** `0` (no processes returned).
+- **Maximum:** `100`
+- **Note:** If omitted, the GCP API default of `0` will be used. Must be greater than `0` if `request_process_details` is `true`.
+
+### `request_process_details` (Boolean, Optional)
+
+If set to `true`, instructs the tool to retrieve full process details (such as `displayName`, `attributes`, and `origin`) for the processes associated with the links.
+
+- **Default:** `false`
+- **Requirement:** Requires `max_process_per_link` to be explicitly set to a value greater than `0`. If `max_process_per_link` is `0` or omitted, a validation error will be returned.
+- **Behavior:** When `true`, it sets the system `x-goog-fieldmask` header to `"links,links.processes.process,unreachable"` to request full process details from the API.
+
+## Example
+
+```yaml
+kind: tool
+name: search_lineage
+type: datalineage-search-lineage
+source: my-lineage-source
+description: Use this tool to search data lineage links for BigQuery tables.
+```
+
+## Output Format
+
+The tool returns a structured JSON object containing the following fields:
+
+- `links` (Array of Objects): A list of accumulated lineage links. Each object represents a lineage link containing details like `name`, `source` entity, `target` entity, `endTime`, `startTime`, and optionally associated `processes` (if process details were requested).
+- `unreachable` (Array of Strings, Optional): A list of GCP locations that failed to respond during the multi-location search (e.g., `projects/123456789/locations/us-east1`). This field is omitted if there are no unreachable locations.
+
+### Example Response
+
+```json
+{
+  "links": [
+    {
+      "name": "projects/my-project/locations/us/links/link-id",
+      "source": {
+        "fullyQualifiedName": "bigquery:project.dataset.source_table"
+      },
+      "target": {
+        "fullyQualifiedName": "bigquery:project.dataset.target_table"
+      },
+      "startTime": "2026-01-01T01:01:01.010Z",
+      "endTime": "2026-01-01T01:01:01.010Z"
+    }
+  ],
+  "unreachable": ["projects/my-project/locations/us-east1"]
+}
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+| :---------- | :------: | :----------: | :------------------------------------------------- |
+| type        |  string  |     true     | Must be "datalineage-search-lineage".              |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
 
 
 
@@ -28586,6 +29195,27 @@ instead of hardcoding your secrets into the configuration file.
 | queryParams            | map[string]string |    false     | Default query parameters to include in the HTTP requests.                                                                          |
 | returnFullError        |       bool        |    false     | Include raw upstream response bodies in error messages for non-2xx responses. Defaults to `false`.                                 |
 | disableSslVerification |       bool        |    false     | Disable SSL certificate verification. This should only be used for local development. Defaults to `false`.                         |
+| allowPrivateNetworks   |       bool        |    false     | Allow requests and redirects to loopback and private networks (RFC 1918 / link-local). Defaults to `false`.                         |
+| allowedIpRanges        |     []string      |    false     | List of IP addresses or CIDR blocks to explicitly allow (whitelisted overrides).                                                   |
+| customBlockedIpRanges  |     []string      |    false     | List of IP addresses or CIDR blocks to explicitly block.                                                                           |
+
+## Advanced Usage
+
+### SSRF Protection (SSRF Guard)
+By default, the HTTP source implements strict protection against Server-Side Request Forgery (SSRF) and DNS Rebinding (TOCTOU) attacks. It automatically intercepts, resolves, and blocks connection requests to private IP ranges, loopback ranges (such as `127.0.0.1`), and link-local ranges (e.g. AWS/GCP metadata service at `169.254.169.254`).
+
+To override the default protection or block custom ranges, configure `allowPrivateNetworks`, `allowedIpRanges`, and `customBlockedIpRanges`:
+
+```yaml
+kind: source
+name: my-http-source
+type: http
+baseUrl: https://internal.corp/api
+allowedIpRanges:
+  - 10.0.0.0/24         # Explicitly trust internal subnet
+customBlockedIpRanges:
+  - 10.0.0.99           # Block a specific sensitive host inside the subnet
+```
 
 [parse-duration-doc]: https://pkg.go.dev/time#ParseDuration
 
@@ -29301,6 +29931,732 @@ This abbreviated syntax works for the qualified predicates except for `label` in
 
 
 ========================================================================
+## dataplex-check-data-quality
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-check-data-quality
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-check-data-quality/
+**Description:** Creates a new Dataplex Data Quality scan template for a specified BigQuery table and triggers the initial asynchronous execution run using custom defined quality rules.
+
+
+
+## About
+
+A `dataplex-check-data-quality` tool triggers a new Data Quality scan to evaluate rules (e.g. non-null, value range limits, custom SQL assertions) against table rows.
+
+Since scan template creation is asynchronous, this tool returns an LRO name. You must poll `dataplex-get-operation` with this ID until it is done, extract the `scanId`, and poll `dataplex-get-run-status` with the `scanId` until the job is `SUCCEEDED` before calling `dataplex-get-data-quality-results` to fetch results.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-check-data-quality` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| resourcePath | string | true | The resource path of the target BigQuery table (format: `projects/{project}/datasets/{dataset}/tables/{table}`). |
+| location | string | true | The Google Cloud region where the scan should be executed (e.g. `us-central1`). |
+| publish | boolean | false | If true, publishes the quality results directly to the Dataplex Universal Catalog. Defaults to false. |
+| specJSON | string | true | A raw JSON string defining the quality checks rules (e.g. `{"rules": [{"column": "age", "nonNullExpectation": {}}]}`, maps directly to `dataplexpb.DataQualitySpec`). |
+
+## Example
+
+```yaml
+kind: tool
+name: check_data_quality
+type: dataplex-check-data-quality
+source: my-dataplex-source
+description: Trigger a new data quality scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-check-data-quality".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-discover-metadata
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-discover-metadata
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-discover-metadata/
+**Description:** Creates a new Dataplex Data Discovery scan template for a specified Cloud Storage bucket and triggers the initial asynchronous execution run to crawl files, infer schemas, and register tables in BigQuery.
+
+
+
+## About
+
+A `dataplex-discover-metadata` tool triggers a new Data Discovery scan to automatically crawl GCS directories, infer schemas/partitions, and publish them as BigQuery tables.
+
+Since scan template creation is asynchronous, this tool returns an LRO name. You must poll `dataplex-get-operation` with this ID until it is done, extract the `scanId`, and poll `dataplex-get-run-status` with the `scanId` until the job is `SUCCEEDED` before calling `dataplex-get-discovery-results` to fetch results.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-discover-metadata` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| resourcePath | string | true | The resource path of the target Cloud Storage bucket (format: `//storage.googleapis.com/{bucket_name}`). |
+| location | string | true | The Google Cloud region where the scan should be executed (e.g. `us-central1`). |
+
+## Example
+
+```yaml
+kind: tool
+name: discover_metadata
+type: dataplex-discover-metadata
+source: my-dataplex-source
+description: Trigger a new metadata discovery scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-discover-metadata".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-generate-data-insights
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-generate-data-insights
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-generate-data-insights/
+**Description:** Creates a new Dataplex Data Insights (documentation) scan template and triggers the initial asynchronous execution run to generate descriptions, relationships, and sample SQL queries for a table.
+
+
+
+## About
+
+A `dataplex-generate-data-insights` tool triggers the creation and run of a Dataplex Data Insights scan on a BigQuery table.
+
+Since the scan template creation is asynchronous, this tool returns a Long-Running Operation (LRO) resource name (format: `projects/{project}/locations/{location}/operations/{operation_id}`).
+To orchestrate this workflow, you must:
+1. Capture the `operation_id` from this tool's response.
+2. Poll the `dataplex-get-operation` tool with this ID until `done` is true.
+3. Extract the created scan ID (`scanId`) from the completed operation's response.
+4. Poll `dataplex-get-run-status` with the `scanId` until the job state is `SUCCEEDED`.
+5. Call `dataplex-get-data-insights` with the `scanId` to fetch the final results.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-generate-data-insights` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| resourcePath | string | true | The resource path of the target BigQuery table (format: `projects/{project}/datasets/{dataset}/tables/{table}`). |
+| location | string | true | The Google Cloud region where the scan should be executed (e.g. `us-central1`). |
+| publish | boolean | false | If true, publishes the generated insights directly to the Dataplex Universal Catalog. Defaults to false. |
+
+## Example
+
+```yaml
+kind: tool
+name: generate_data_insights
+type: dataplex-generate-data-insights
+source: my-dataplex-source
+description: Trigger a new data insights scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-generate-data-insights".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-generate-data-profile
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-generate-data-profile
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-generate-data-profile/
+**Description:** Creates a new Dataplex Data Profile scan template for a specified BigQuery table and triggers the initial asynchronous execution run.
+
+
+
+## About
+
+A `dataplex-generate-data-profile` tool triggers a new Data Profile scan to compute statistical profiles (min, max, mean, null ratios, distinct ratios, quantiles, etc.) on table columns.
+
+Since scan template creation is asynchronous, this tool returns an LRO name. You must poll `dataplex-get-operation` with this ID until it is done, extract the `scanId`, and poll `dataplex-get-run-status` with the `scanId` until the job is `SUCCEEDED` before calling `dataplex-get-data-profile` to fetch results.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-generate-data-profile` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| resourcePath | string | true | The resource path of the target BigQuery table (format: `projects/{project}/datasets/{dataset}/tables/{table}`). |
+| location | string | true | The Google Cloud region where the scan should be executed (e.g. `us-central1`). |
+| publish | boolean | false | If true, publishes the profile results directly to the Dataplex Universal Catalog. Defaults to false. |
+
+## Example
+
+```yaml
+kind: tool
+name: generate_data_profile
+type: dataplex-generate-data-profile
+source: my-dataplex-source
+description: Trigger a new data profiling scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-generate-data-profile".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-data-insights
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-data-insights
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-insights/
+**Description:** Retrieves the final generated data insights (descriptions, schema relationships, sample SQL queries) for a completed insights scan.
+
+
+
+## About
+
+A `dataplex-get-data-insights` tool retrieves the final results of a completed Data Insights scan.
+
+WARNING: You must verify that the execution run has succeeded (via `dataplex-get-run-status`) before calling this tool, otherwise the results will be empty.
+CRITICAL: Access the results only via the nested public GA fields `dataDocumentationResult.datasetResult` (for datasets) or `dataDocumentationResult.tableResult` (for tables). The top-level fields (like `dataDocumentationResult.queries`) are restricted and will be empty.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-data-insights` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| scanId | string | true | The unique ID of the Dataplex scan (e.g. `nq-doc-12345`). |
+| location | string | true | The Google Cloud region where the scan was created (e.g. `us-central1`). |
+
+## Example
+
+```yaml
+kind: tool
+name: get_data_insights
+type: dataplex-get-data-insights
+source: my-dataplex-source
+description: Retrieve results from a completed data insights scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-data-insights".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-data-profile
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-data-profile
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-profile/
+**Description:** Retrieves the final generated data profile results (overall row counts, column-level statistics, quartiles, and frequent values) for a completed profiling scan.
+
+
+
+## About
+
+A `dataplex-get-data-profile` tool retrieves the results of a completed Data Profile scan.
+
+WARNING: You must verify the execution run has succeeded (via `dataplex-get-run-status`) before calling this tool, otherwise the results will be empty.
+CRITICAL: Access the results via the nested public fields `dataProfileResult.profile.fields` inside the returned DataScan.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-data-profile` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| scanId | string | true | The unique ID of the Dataplex profile scan (e.g. `nq-prof-12345`). |
+| location | string | true | The Google Cloud region where the scan was created (e.g. `us-central1`). |
+
+## Example
+
+```yaml
+kind: tool
+name: get_data_profile
+type: dataplex-get-data-profile
+source: my-dataplex-source
+description: Fetch results of a completed data profile scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-data-profile".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-data-quality-results
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-data-quality-results
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-data-quality-results/
+**Description:** Retrieves the final generated data quality results (overall score, dimension scores, rule passing details, and the failing rows debug SQL query) for a completed quality scan.
+
+
+
+## About
+
+A `dataplex-get-data-quality-results` tool retrieves the results of a completed Data Quality scan.
+
+WARNING: You must verify the execution run has succeeded (via `dataplex-get-run-status`) before calling this tool, otherwise the results will be empty.
+CRITICAL: Access the results via the nested public fields `dataQualityResult` inside the returned DataScan.
+Note that the `failingRowsQuery` field inside the rules result is extremely useful for retrieving failed rows.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-data-quality-results` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| scanId | string | true | The unique ID of the Dataplex quality scan (e.g. `nq-dq-12345`). |
+| location | string | true | The Google Cloud region where the scan was created (e.g. `us-central1`). |
+
+## Example
+
+```yaml
+kind: tool
+name: get_data_quality_results
+type: dataplex-get-data-quality-results
+source: my-dataplex-source
+description: Fetch results of a completed data quality scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-data-quality-results".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-discovery-results
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-discovery-results
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-discovery-results/
+**Description:** Retrieves the final generated data discovery results (publishing metadata showing registered BigQuery tables, scanned file counts, and processed bytes) for a completed discovery scan.
+
+
+
+## About
+
+A `dataplex-get-discovery-results` tool retrieves the results of a completed Data Discovery scan.
+
+WARNING: You must verify the execution run has succeeded (via `dataplex-get-run-status`) before calling this tool, otherwise the results will be empty.
+CRITICAL: Access the results via the nested public fields `dataDiscoveryResult.bigqueryPublishing` and `dataDiscoveryResult.scanStatistics` inside the returned DataScan.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-discovery-results` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| scanId | string | true | The unique ID of the Dataplex discovery scan (e.g. `nq-disc-12345`). |
+| location | string | true | The Google Cloud region where the scan was created (e.g. `us-central1`). |
+
+## Example
+
+```yaml
+kind: tool
+name: get_discovery_results
+type: dataplex-get-discovery-results
+source: my-dataplex-source
+description: Fetch results of a completed metadata discovery scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-discovery-results".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-operation
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-operation
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-operation/
+**Description:** Retrieves the status of an asynchronous Dataplex Long-Running Operation (LRO).
+
+
+
+## About
+
+A `dataplex-get-operation` tool retrieves the status of a Dataplex long-running operation (LRO) like scan creation.
+
+Poll this tool until the `done` field from the response is `true`. Once completed, the `response` field will contain the created DataScan resource, from which you can extract the `scanId` (the last part of the `name` field, e.g. `nq-doc-1234`) to pass to `get_run_status` and get results.
+WARNING: This only tracks the creation of the scan template, NOT the actual background execution.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-operation` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| operationName | string | true | The full operation resource name (format: `projects/{project}/locations/{location}/operations/{operation_id}`). |
+
+## Example
+
+```yaml
+kind: tool
+name: get_operation
+type: dataplex-get-operation
+source: my-dataplex-source
+description: Check the status of a long-running scan template creation.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-operation".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## dataplex-get-run-status
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-get-run-status
+**URL:** https://mcp-toolbox.dev/dev/integrations/knowledge-catalog/tools/knowledge-catalog-get-run-status/
+**Description:** Retrieves the execution status of the background job run (DataScanJob) for a specified Dataplex scan.
+
+
+
+## About
+
+A `dataplex-get-run-status` tool retrieves the execution status of the latest background job run for a specified scan.
+
+Use this tool to poll the progress of the insights, profiling, discovery, or quality scan execution. Wait until the returned `state` is `SUCCEEDED` before fetching results. Typical execution takes 2-5 minutes. If the state is `FAILED`, check the error details.
+
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Knowledge Catalog uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-get-run-status` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| scanId | string | true | The unique ID of the Dataplex scan template (e.g. `nq-prof-12345`). |
+| location | string | true | The Google Cloud region where the scan was created (e.g. `us-central1`). |
+| jobId | string | false | Optional. A specific job run ID. If omitted, returns status for the latest job run. |
+
+## Example
+
+```yaml
+kind: tool
+name: get_run_status
+type: dataplex-get-run-status
+source: my-dataplex-source
+description: Monitor the background execution run of a Dataplex scan.
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "dataplex-get-run-status".                   |
+| source      |  string  |     true     | Name of the source the tool should execute on.     |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
 ## dataplex-lookup-context
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > Knowledge Catalog > Tools > dataplex-lookup-context
@@ -29313,11 +30669,7 @@ This abbreviated syntax works for the qualified predicates except for `label` in
 
 A `dataplex-lookup-context` tool provides rich metadata of one or more data assets along with their relationships.
 
-`dataplex-lookup-context` takes a required `name` parameter which contains the
-project and location to which the request should be attributed in the following
-form: projects/{project}/locations/{location} and also a required `resources`
-parameter which is a list of resource names for which metadata is needed in the 
-following form: projects/{project}/locations/{location}/entryGroups/{group}/entries/{entry}
+`dataplex-lookup-context` takes a required `resources` parameter which is a list of up to 10 resource names for which metadata is needed in the following form: `projects/{project}/locations/{location}/entryGroups/{group}/entries/{entry}`. All resources must belong to the same Google Cloud location.
 
 ## Compatible Sources
 
@@ -29351,6 +30703,14 @@ rather than an access denied error.
 [iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
 [iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
 [dataplex-docs]: https://cloud.google.com/dataplex/docs
+
+## Parameters
+
+The `dataplex-lookup-context` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| resources | list of strings | true | A list of up to 10 resource names for which metadata is needed (format: `projects/{project}/locations/{location}/entryGroups/{group}/entries/{entry}`). |
 
 ## Example
 
@@ -29386,24 +30746,6 @@ description: Use this tool to retrieve rich metadata regarding one or more data 
 
 A `dataplex-lookup-entry` tool returns details of a particular entry in Knowledge Catalog.
 
-`dataplex-lookup-entry` takes a required `name` parameter which contains the
-project and location to which the request should be attributed in the following
-form: projects/{project}/locations/{location} and also a required `entry`
-parameter which is the resource name of the entry in the following form:
-projects/{project}/locations/{location}/entryGroups/{entryGroup}/entries/{entry}.
-It also optionally accepts following parameters:
-
-- `view` - View to control which parts of an entry the service should return.
-    It takes integer values from 1-4 corresponding to type of view - BASIC,
-    FULL, CUSTOM, ALL
-- `aspectTypes` - Limits the aspects returned to the provided aspect types in
-    the format
-    `projects/{project}/locations/{location}/aspectTypes/{aspectType}`. It only
-    works for CUSTOM view.
-- `paths` - Limits the aspects returned to those associated with the provided
-    paths within the Entry. It only works for CUSTOM view.
-
-
 ## Compatible Sources
 
 {{< compatible-sources >}}
@@ -29428,6 +30770,16 @@ applying IAM permissions and roles to an identity.
 [set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
 [iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
 [iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+
+## Parameters
+
+The `dataplex-lookup-entry` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| entry | string | true | The resource name of the Entry (format: `projects/{project}/locations/{location}/entryGroups/{entryGroup}/entries/{entry}`). |
+| view | integer | false | View to control which parts of an entry to return (1=BASIC, 2=FULL, 3=CUSTOM, 4=ALL). Defaults to 2. |
+| aspectTypes | list of strings | false | Limits the aspects returned to the provided aspect types (format: `projects/{project}/locations/{location}/aspectTypes/{aspectType}`). Only works for CUSTOM view (3). |
 
 ## Example
 
@@ -29464,15 +30816,6 @@ description: Use this tool to retrieve a specific entry in Knowledge Catalog.
 A `dataplex-search-aspect-types` tool allows to fetch the metadata template of
 aspect types based on search query.
 
-`dataplex-search-aspect-types` accepts following parameters optionally:
-
-- `query` - Narrows down the search of aspect types to value of this parameter.
-  If not provided, it fetches all aspect types available to the user.
-- `pageSize` - Number of returned aspect types in the search page. Defaults to `5`.
-- `orderBy` - Specifies the ordering of results. Supported values are: relevance
-  (default), last_modified_timestamp, last_modified_timestamp asc.
-
-
 ## Compatible Sources
 
 {{< compatible-sources >}}
@@ -29498,6 +30841,16 @@ applying IAM permissions and roles to an identity.
 [iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
 [iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
 [dataplex-docs]: https://cloud.google.com/dataplex
+
+## Parameters
+
+The `dataplex-search-aspect-types` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| query | string | false | Optional. Narrows down the search of aspect types to value of this parameter. If not provided, it fetches all available aspect types. |
+| pageSize | integer | false | Number of returned aspect types in the search page. Defaults to 5. |
+| orderBy | string | false | Specifies ordering of results (`relevance`, `last_modified_timestamp`, `last_modified_timestamp asc`). Defaults to relevance. |
 
 ## Example
 
@@ -29532,17 +30885,9 @@ description: Use this tool to find aspect types relevant to the query.
 ## About
 
 A `dataplex-search-dq-scans` tool returns data quality scans that match the given criteria.
-It's compatible with the following sources:
+## Compatible Sources
 
-- [dataplex](../../sources/dataplex.md)
-
-`dataplex-search-dq-scans` accepts the following optional parameters:
-
-- `filter` - Filter string to search/filter data quality scans. E.g. "display_name = \"my-scan\"".
-- `data_scan_id` - The resource name of the data scan to filter by: projects/{project}/locations/{locationId}/dataScans/{dataScanId}.
-- `table_name` - The name of the table to filter by. Maps to data.entity in the filter string. E.g. "//bigquery.googleapis.com/projects/P/datasets/D/tables/T".
-- `pageSize` - Number of returned data quality scans in the page. Defaults to `10`.
-- `orderBy` - Specifies the ordering of results.
+{{< compatible-sources >}}
 
 ## Requirements
 
@@ -29565,6 +30910,18 @@ applying IAM permissions and roles to an identity.
 [iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
 [iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
 [dataplex-docs]: https://cloud.google.com/dataplex
+
+## Parameters
+
+The `dataplex-search-dq-scans` tool accepts the following optional parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| filter | string | false | Filter string to search/filter data quality scans (e.g. `display_name = "my-scan"`). |
+| data_scan_id | string | false | The resource name of the data scan to filter by (`projects/{project}/locations/{locationId}/dataScans/{dataScanId}`). |
+| table_name | string | false | The name of the table to filter by, mapping to `data.entity` (e.g. `//bigquery.googleapis.com/projects/P/datasets/D/tables/T`). |
+| pageSize | integer | false | Number of returned data quality scans in the page. Defaults to 10. |
+| orderBy | string | false | Specifies ordering of results. |
 
 ## Example
 
@@ -29601,18 +30958,6 @@ description: Use this tool to search for data quality scans.
 A `dataplex-search-entries` tool returns all entries in Knowledge Catalog (formerly known as Dataplex) (e.g.
 tables, views, models) that matches given user query.
 
-`dataplex-search-entries` takes a required `query` parameter based on which
-entries are filtered and returned to the user. It also optionally accepts
-following parameters:
-
-- `scope` - A scope limits the search space to a particular project or organization.
-  It must be in the format: organizations/<org_id> or projects/<project_id>
-  or projects/<project_number>.
-- `pageSize` - Number of results in the search page. Defaults to `5`.
-- `orderBy` - Specifies the ordering of results. Supported values are: relevance
-  (default), last_modified_timestamp, last_modified_timestamp asc.
-
-
 ## Compatible Sources
 
 {{< compatible-sources >}}
@@ -29638,6 +30983,17 @@ applying IAM permissions and roles to an identity.
 [iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
 [iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
 [dataplex-docs]: https://cloud.google.com/dataplex
+
+## Parameters
+
+The `dataplex-search-entries` tool accepts the following parameters:
+
+| **field** | **type** | **required** | **description** |
+| --------- | :------: | :----------: | --------------- |
+| query | string | true | The search query string to filter entries. |
+| scope | string | false | Limits search space (`organizations/<org_id>`, `projects/<project_id>`, or `projects/<project_number>`). |
+| pageSize | integer | false | Number of results in the search page. Defaults to 5. |
+| orderBy | string | false | Ordering of results (`relevance`, `last_modified_timestamp`, `last_modified_timestamp asc`). Defaults to relevance. |
 
 ## Example
 
@@ -29691,9 +31047,23 @@ description: Use this tool to get all the entries based on the provided query.
 *   **Tools:**
     *   `search_entries`: Searches for entries in Knowledge Catalog.
     *   `lookup_entry`: Retrieves a specific entry from Knowledge Catalog.
-    *   `search_aspect_types`: Finds aspect types relevant to the
-        query.
+    *   `search_aspect_types`: Finds aspect types relevant to the query.
     *   `lookup_context`: Retrieves rich metadata regarding one or more data assets along with their relationships.
+    *   `search_dq_scans`: Search for data quality scans in Dataplex.
+    *   `generate_data_insights`: Creates a new Dataplex Data Documentation scan template and triggers the run.
+    *   `get_data_insights`: Retrieves the final generated data insights for a completed scan.
+    *   `generate_data_profile`: Creates a new Dataplex Data Profile scan template and triggers the run.
+    *   `get_data_profile`: Retrieves the final generated data profile results.
+    *   `discover_metadata`: Creates a new Dataplex Data Discovery scan template and triggers the run.
+    *   `get_discovery_results`: Retrieves the final generated data discovery results.
+    *   `check_data_quality`: Creates a new Dataplex Data Quality scan template and triggers the run.
+    *   `get_data_quality_results`: Retrieves the final generated data quality results.
+    *   `get_operation`: Retrieves the status of a Dataplex long-running operation.
+    *   `get_run_status`: Retrieves the execution status of the latest background job run.
+*   **Toolsets:**
+    *   `discovery`: Metadata discovery and search toolset (`search_entries`, `lookup_entry`, `search_aspect_types`, `lookup_context`, `search_dq_scans`).
+    *   `enrich`: Metadata enrichment pipeline orchestration and execution toolset (`search_entries`, `lookup_entry`, `lookup_context`, `generate_data_insights`, `get_data_insights`, `generate_data_profile`, `get_data_profile`, `discover_metadata`, `get_discovery_results`, `check_data_quality`, `get_data_quality_results`, `get_operation`, `get_run_status`).
+
 
 
 
@@ -32100,16 +33470,17 @@ description: |
 The `looker-query` tool runs a query using the Looker
 semantic model.
 
-`looker-query` takes eight parameters:
+`looker-query` takes nine parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
+5. an optional `filter_expression`
+6. an optional set of `pivots`
+7. an optional set of `sorts`
+8. an optional `limit`
+9. an optional `tz`
 
 Starting in Looker v25.18, these queries can be identified in Looker's
 System Activity. In the History explore, use the field API Client Name
@@ -32140,6 +33511,14 @@ description: |
     - Do not quote field names.
     - Use `not null` instead of `-NULL`.
     - If a value contains a comma, enclose it in single quotes (e.g., "'New York, NY'").
+  - filter_expression: A Looker expression filter string (custom filter). This allows complex logic and comparing fields.
+    - Reference fields using `${view.field_name}` syntax.
+    - Supports logical operators (`AND`, `OR`, `NOT`) and comparison operators.
+    - Supports Looker functions (e.g., `matches_filter`, `now`, `add_days`, `diff_days`).
+    - Examples:
+      - `${orders.order_date} < add_years(-1, now())`
+      - `${activity.email} != ${activity_drive_facts.current_owner_email}`
+      - `matches_filter(${order.order_month}, '24 months') AND matches_filter(${order.order_month}, 'before 2024/07/01')`
   - sorts: A list of fields to sort by, optionally including direction (e.g., `["view.field desc"]`).
   - limit: Row limit (default 500). Use "-1" for unlimited.
   - query_timezone: specific timezone for the query (e.g. `America/Los_Angeles`).
@@ -32174,16 +33553,17 @@ description: |
 The `looker-query-sql` generates a sql query using the Looker
 semantic model.
 
-`looker-query-sql` takes eight parameters:
+`looker-query-sql` takes nine parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
+5. an optional `filter_expression`
+6. an optional set of `pivots`
+7. an optional set of `sorts`
+8. an optional `limit`
+9. an optional `tz`
 
 Starting in Looker v25.18, these queries can be identified in Looker's
 System Activity. In the History explore, use the field API Client Name
@@ -32208,7 +33588,7 @@ description: |
   Parameters:
   All parameters for this tool are identical to those of the `query` tool.
   This includes `model_name`, `explore_name`, `fields` (required),
-  and optional parameters like `pivots`, `filters`, `sorts`, `limit`, and `query_timezone`.
+  and optional parameters like `pivots`, `filters`, `filter_expression`, `sorts`, `limit`, and `query_timezone`.
 
   Output:
   The result of this tool is the raw SQL text.
@@ -32239,17 +33619,18 @@ description: |
 The `looker-query-url` generates a url link to an explore in
 Looker so the query can be investigated further.
 
-`looker-query-url` takes nine parameters:
+`looker-query-url` takes ten parameters:
 
 1. the `model`
 2. the `explore`
 3. the `fields` list
 4. an optional set of `filters`
-5. an optional set of `pivots`
-6. an optional set of `sorts`
-7. an optional `limit`
-8. an optional `tz`
-9. an optional `vis_config`
+5. an optional `filter_expression`
+6. an optional set of `pivots`
+7. an optional set of `sorts`
+8. an optional `limit`
+9. an optional `tz`
+10. an optional `vis_config`
 
 ## Compatible Sources
 
@@ -32269,7 +33650,7 @@ description: |
 
   Parameters:
   All query parameters (e.g., `model_name`, `explore_name`, `fields`, `pivots`,
-  `filters`, `sorts`, `limit`, `query_timezone`) are the same as the `query` tool.
+  `filters`, `filter_expression`, `sorts`, `limit`, `query_timezone`) are the same as the `query` tool.
 
   Additionally, it accepts an optional `vis_config` parameter:
   - vis_config (optional): A JSON object that controls the default visualization
@@ -33341,8 +34722,8 @@ In this section, we will download Toolbox and run the Toolbox server.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/$OS/toolbox
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -33502,8 +34883,8 @@ In this section, we will download Toolbox and run the Toolbox server.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/$OS/toolbox
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -33625,8 +35006,8 @@ In this section, we will download Toolbox and run the Toolbox server.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
-    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.3.0/$OS/toolbox
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
+    curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v1.5.0/$OS/toolbox
     ```
     <!-- {x-release-please-end} -->
 
@@ -35272,6 +36653,7 @@ instead of hardcoding your secrets into the configuration file.
 | database     |       string       |    false     | Name of the MySQL database to connect to (e.g. "my_db").                                                                                        |
 | queryTimeout |       string       |    false     | Maximum time to wait for query execution (e.g. "30s", "2m"). By default, no timeout is applied.                                                 |
 | queryParams  | map<string,string> |    false     | Arbitrary DSN parameters passed to the driver (e.g. `tls: preferred`, `charset: utf8mb4`). Useful for enabling TLS or other connection options. |
+| sqlCommenter |      boolean       |    false     | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies.                 |
 
 
 
@@ -35348,6 +36730,30 @@ database.
 
 `mysql-get-query-plan` takes one input parameter `sql_statement` and gets the execution plan for the SQL
 statement against the `source`.
+
+** Security **
+
+The tool runs the supplied statement as `EXPLAIN FORMAT=JSON <sql_statement>`.
+A plain `EXPLAIN` (without `ANALYZE`) only computes the query plan; it never
+executes the wrapped statement, so `SELECT`, `INSERT`, `UPDATE`, and `DELETE`
+inputs all return a plan without side effects.
+
+Two execution vectors are blocked structurally rather than by parsing the
+input:
+
+- **`EXPLAIN ANALYZE` (which does execute the statement) is unreachable.** The
+  tool fixes the `FORMAT=JSON` prefix, and MySQL's grammar requires `ANALYZE`
+  to appear *before* `FORMAT=`. A statement beginning with `ANALYZE` therefore
+  lands after `FORMAT=JSON` and is rejected by the server as a syntax error.
+- **Multiple statements are not run.** The MySQL driver does not enable
+  multi-statement execution by default, so input such as
+  `SELECT 1; DROP TABLE t` is rejected by the server rather than executed.
+
+As defense in depth, configure the `source` with a **least-privilege database
+user** scoped to only the objects the agent needs to plan against. This bounds
+what any statement — including those that `EXPLAIN` does plan — can reach, and
+is the recommended control for this tool. Avoid enabling the driver's
+multi-statement option on the source.
 
 ## Compatible Sources
 
@@ -35436,6 +36842,78 @@ The response is a json array with the following fields:
 | type        |  string  |     true     | Must be "mysql-list-active-queries".               |
 | source      |  string  |     true     | Name of the source the SQL should execute on.      |
 | description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+========================================================================
+## mysql-list-all-locks
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-list-all-locks
+**URL:** https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-list-all-locks/
+**Description:** A "mysql-list-all-locks" tool list all active locks including lock type, lock mode, locked object, lock status, transaction state, query and process id for all objects or specified objects within a designated database or across all databases as requested. 
+
+
+
+## About
+`mysql-list-all-locks` tool retrieves active database locks by joining performance_schema.data_locks with information_schema.innodb_trx, providing a comprehensive view of blocked threads, transaction states, and the specific queries causing contention.
+
+`mysql-list-all-locks` outputs a detailed view of data locks including lock type, lock mode, lock status, transaction state, current operation and query for all threads running on specified object or all objects in a database. The output is a JSON formatted array of top 10 data locks ordered by longest running transaction time.
+
+## Compatible Sources
+
+{{< compatible-sources others="integrations/cloud-sql-mysql">}}
+
+## Requirements
+
+- `performance_schema` should be turned ON for this tool to work. 
+
+## Parameters
+
+This tool takes 3 optional input parameters:
+- `table_schema` (optional): The target database for active locks. If not specified the results will be displayed for all databases. 
+- `table_name` (optional): Name of the table to be checked. Check all tables visible to the current user if not specified.
+- `limit` (optional): Max rows to return, default 10.
+- `connected_schema` (optional): The database user is connected to, the value is set from env variable `CLOUD_SQL_MYSQL_DATABASE` or `MYSQL_DATABASE`.
+
+## Example
+
+```yaml
+kind: tools
+name: list_all_locks
+type: mysql-list-all-locks
+source: my-mysql-instance
+description: list all active locks including lock type, lock mode, locked object, lock status, transaction state, query and process id for all objects or specified objects within a designated database or across all databases as requested.
+```
+
+## Output Format
+
+The response is a json array with the following fields:
+```json
+[
+  {
+  "thread_id": "The internal MySQL server thread identifier associated with the lock",
+  "process_id": "MySQL Process ID",
+  "db": "The database schema where the locked object is located",
+  "table_name": "The name of the specific table affected by the lock",
+  "lock_type": "The target of the lock, such as a table or an individual record",
+  "lock_mode": "The specific permission level of the lock (e.g., Shared or Exclusive)",
+  "lock_status": "Whether the lock has been successfully granted or is currently waiting",
+  "transaction_state": "The current lifecycle phase of the transaction",
+  "current_operation": "The specific internal task the transaction is currently performing",
+  "query": "The trimmed text of the SQL statement"
+  }
+]
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "mysql-list-all-locks".                    |
+| source      |  string  |     true     | Name of the source the SQL should execute on.      |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
 
 
 
@@ -35702,6 +37180,78 @@ The response is a json array with the following fields:
 
 
 ========================================================================
+## mysql-show-query-stats
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-show-query-stats
+**URL:** https://mcp-toolbox.dev/dev/integrations/mysql/tools/mysql-show-query-stats/
+**Description:** A "mysql-show-query-stats" tool report query execution statistics including execution count, total and average latency, max latency, total rows examined, full table scans, and inefficient index usage for all queries on a specified database or all databases as requested.
+
+
+
+## About
+`mysql-show-query-stats` tool retrieves a database level query statistics from performance_schema.events_statements_summary_by_digest to identify slow and inefficient queries and provides necessary data to perform effective query tuning.
+
+`mysql-show-query-stats` outputs detailed query statistics including total latency, average latency, maximum latency, total rows sent, total rows examined, full table scan count, inefficient index usage count and last executed timestamp. The output format is JSON array of top 10 queries ranked by total latency.
+
+## Compatible Sources
+
+{{< compatible-sources others="integrations/cloud-sql-mysql">}}
+
+## Requirements
+
+- `performance_schema` should be turned ON for this tool to work. 
+
+## Parameters
+
+This tool takes 2 optional input parameters:
+- `table_schema` (optional): The target database for query statistics. If not specified the results will be displayed for all databases. 
+- `limit` (optional): Max rows to return, default 10.
+- `connected_schema` (optional): The database user is connected to, the value is set from env variable `CLOUD_SQL_MYSQL_DATABASE` or `MYSQL_DATABASE`.
+
+## Example
+
+```yaml
+kind: tools
+name: show_query_stats
+type: mysql-show-query-stats
+source: my-mysql-instance
+description: Shows query execution statistics including execution count, total and average latency, max latency, total rows examined, full table scans, and inefficient index usage for all queries on a specified database or from all databases. Results are limited to 10 by default.
+```
+
+## Output Format
+
+The response is a json array with the following fields:
+```json
+[
+  {
+  "table_schema": "The schema/database this table belongs to",
+  "table_name": "Name of this table",
+  "exec_count": "Number of times query is executed",
+  "total_latency_ms": "total latency in milli seconds",
+  "average_latency_ms": "average latency in milli seconds",
+  "max_latency_ms": "maximum latency in milli seconds",
+  "total_rows_sent": "total number of rows sent",
+  "sum_rows_examined": "total number of rows examined",
+  "sum_no_index_used": "count of full table scan",
+  "sum_no_good_index_used": "count of inefficient index use",
+  "last_seen": "time when query was last seen"
+  }
+]
+```
+
+## Reference
+
+| **field**   | **type** | **required** | **description**                                    |
+|-------------|:--------:|:------------:|----------------------------------------------------|
+| type        |  string  |     true     | Must be "mysql-show-query-stats".                  |
+| source      |  string  |     true     | Name of the source the SQL should execute on.      |
+| description |  string  |     true     | Description of the tool that is passed to the LLM. |
+
+
+
+
+
+========================================================================
 ## mysql-sql
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > MySQL > Tools > mysql-sql
@@ -35850,6 +37400,8 @@ templateParameters:
     *   `list_tables_missing_unique_indexes`: Looks for tables that do not have
         primary or unique key contraint.
     *   `list_table_fragmentation`: Displays table fragmentation in MySQL.
+    *   `list_all_locks`: Lists all current locks on the database.
+    *   `show_query_stats`: Show query execution statistics.
     *   `list_table_stats`: Displays table statistics in MySQL.
 
 
@@ -36261,7 +37813,7 @@ The simplest way to get started is to download the latest binary for your operat
 \+
 
 ```bash
-export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
+export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
 curl -O [https://storage.googleapis.com/mcp-toolbox-for-databases/v0.16.0/$OS/toolbox](https://storage.googleapis.com/mcp-toolbox-for-databases/v0.16.0/$OS/toolbox)
 ```
 
@@ -37224,6 +38776,7 @@ instead of hardcoding your secrets into the configuration file.
 | password    |       string       |     true     | Password of the Postgres user (e.g. "my-password").                    |
 | queryParams |  map[string]string |     false    | Raw query to be added to the db connection string.                     |
 | queryExecMode | string | false | pgx query execution mode. Valid values: `cache_statement` (default), `cache_describe`, `describe_exec`, `exec`, `simple_protocol`. Useful with connection poolers that don't support prepared statement caching. |
+| sqlCommenter | boolean | false | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies. |
 
 
 
@@ -39384,6 +40937,214 @@ parameters:
 
 
 ========================================================================
+## ScyllaDB
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > ScyllaDB
+**URL:** https://mcp-toolbox.dev/dev/integrations/scylladb/
+**Description:** None
+
+
+
+
+
+========================================================================
+## ScyllaDB Source
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > ScyllaDB > ScyllaDB Source
+**URL:** https://mcp-toolbox.dev/dev/integrations/scylladb/source/
+**Description:** ScyllaDB is a high-performance NoSQL database compatible with Apache Cassandra CQL, offering lower latency and higher throughput through its shard-per-core architecture.
+
+
+
+## About
+
+[ScyllaDB][scylladb-docs] is a high-performance NoSQL database that is 
+compatible with Apache Cassandra's CQL protocol. It is designed to provide 
+predictable performance at scale, optimize cloud infrastructure, 
+rapidly scale clusters with global replication and high availability,
+
+ScyllaDB supports both self-hosted deployments and [ScyllaDB Cloud][scylladb-cloud],
+a fully-managed DBaaS available on AWS and GCP.
+
+[scylladb-docs]: https://docs.scylladb.com/
+[scylladb-cloud]: https://cloud.scylladb.com/
+
+## Available Tools
+
+{{< list-tools >}}
+
+## Example
+
+### Self-hosted ScyllaDB
+
+```yaml
+kind: source
+name: my-scylladb-source
+type: scylladb
+hosts:
+    - 127.0.0.1
+keyspace: my_keyspace
+protoVersion: 4
+username: ${USER_NAME}
+password: ${PASSWORD}
+```
+
+### ScyllaDB Cloud
+
+When connecting to ScyllaDB Cloud, set `localDC` to the datacenter name shown
+on the **Connect** tab of your cluster in the [ScyllaDB Cloud Console][scylladb-cloud].
+This enables DC-aware token-aware load balancing, which is required for
+ScyllaDB Cloud connections.
+
+```yaml
+kind: source
+name: my-scylladb-cloud-source
+type: scylladb
+hosts:
+    - node-0.your-cluster.us-east-1.cloud.scylladb.com
+    - node-1.your-cluster.us-east-1.cloud.scylladb.com
+    - node-2.your-cluster.us-east-1.cloud.scylladb.com
+keyspace: my_keyspace
+username: ${USER_NAME}
+password: ${PASSWORD}
+localDC: AWS_US_EAST_1
+```
+
+{{< notice tip >}}
+Use environment variable replacement with the format ${ENV_NAME}
+instead of hardcoding your secrets into the configuration file.
+{{< /notice >}}
+
+## Reference
+
+| **field**              | **type** | **required** | **description**                                                                                                                                         |
+|------------------------|:--------:|:------------:|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type                   |  string  |     true     | Must be "scylladb".                                                                                                                                     |
+| hosts                  | string[] |     true     | List of contact point addresses (e.g., ["192.168.1.1:9042", "192.168.1.2:9042"]). The default port is 9042 if not specified.                            |
+| keyspace               |  string  |    false     | Name of the ScyllaDB keyspace to connect to (e.g., "my_keyspace").                                                                                      |
+| protoVersion           | integer  |    false     | CQL native protocol version (e.g., 4).                                                                                                                  |
+| username               |  string  |    false     | Name of the ScyllaDB user to connect as (e.g., "scylla").                                                                                               |
+| password               |  string  |    false     | Password of the ScyllaDB user.                                                                                                                          |
+| localDC                |  string  |    false     | Datacenter name for DC-aware load balancing (e.g., "AWS_US_EAST_1"). Required for ScyllaDB Cloud connections.                                           |
+| caPath                 |  string  |    false     | Path to a CA certificate file. Use when connecting to a self-hosted ScyllaDB cluster with a private/custom CA. Not needed for ScyllaDB Cloud.           |
+| certPath               |  string  |    false     | Path to the client certificate file for mutual TLS (mTLS). Required only when the server demands client certificate authentication.                     |
+| keyPath                |  string  |    false     | Path to the client private key file for mutual TLS (mTLS). Required together with `certPath`.                                                           |
+| enableHostVerification |   bool   |    false     | Whether to verify the server's hostname against its TLS certificate. Defaults to `false`.                                                               |
+
+
+
+
+========================================================================
+## Tools
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > ScyllaDB > Tools
+**URL:** https://mcp-toolbox.dev/dev/integrations/scylladb/tools/
+**Description:** None
+
+
+
+
+
+========================================================================
+## scylladb-cql
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > ScyllaDB > Tools > scylladb-cql
+**URL:** https://mcp-toolbox.dev/dev/integrations/scylladb/tools/scylladb-cql/
+**Description:** A "scylladb-cql" tool executes a pre-defined CQL statement against a ScyllaDB cluster.
+
+
+
+## About
+
+A `scylladb-cql` tool executes a pre-defined CQL statement against a ScyllaDB
+cluster.
+
+The specified CQL statement is executed as a prepared
+statement, and expects parameters in the CQL query to be in
+the form of placeholders `?`.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Example
+
+> **Note:** This tool uses parameterized queries to prevent CQL injections.
+> Query parameters can be used as substitutes for arbitrary expressions.
+> Parameters cannot be used as substitutes for keyspaces, table names, column
+> names, or other parts of the query.
+
+```yaml
+kind: tool
+name: search_users_by_email
+type: scylladb-cql
+source: my-scylladb-cluster
+statement: |
+  SELECT user_id, email, first_name, last_name, created_at
+  FROM users
+  WHERE email = ?
+description: |
+  Use this tool to retrieve specific user information by their email address.
+  Takes an email address and returns user details including user ID, email,
+  first name, last name, and account creation timestamp.
+  Do NOT use this tool with a user ID or other identifiers.
+  Example:
+  {{
+      "email": "user@example.com",
+  }}
+parameters:
+  - name: email
+    type: string
+    description: User's email address
+```
+
+### Example with Template Parameters
+
+> **Note:** This tool allows direct modifications to the CQL statement,
+> including keyspaces, table names, and column names. **This makes it more
+> vulnerable to CQL injections**. Using basic parameters only (see above) is
+> recommended for performance and safety reasons. For more details, please check
+> [templateParameters](../../../documentation/configuration/tools/_index.md#template-parameters).
+
+```yaml
+kind: tool
+name: list_keyspace_table
+type: scylladb-cql
+source: my-scylladb-cluster
+statement: |
+  SELECT * FROM {{.keyspace}}.{{.tableName}};
+description: |
+  Use this tool to list all information from a specific table in a keyspace.
+  Example:
+  {{
+      "keyspace": "my_keyspace",
+      "tableName": "users",
+  }}
+templateParameters:
+  - name: keyspace
+    type: string
+    description: Keyspace containing the table
+  - name: tableName
+    type: string
+    description: Table to select from
+```
+
+## Reference
+
+| **field**          |                   **type**                    | **required** | **description**                                                                                                                         |
+|--------------------|:---------------------------------------------:|:------------:|-----------------------------------------------------------------------------------------------------------------------------------------|
+| type               |                    string                     |     true     | Must be "scylladb-cql".                                                                                                                 |
+| source             |                    string                     |     true     | Name of the source the CQL should execute on.                                                                                           |
+| description        |                    string                     |     true     | Description of the tool that is passed to the LLM.                                                                                      |
+| statement          |                    string                     |     true     | CQL statement to execute.                                                                                                               |
+| authRequired       |                   []string                    |    false     | List of authentication requirements for the source.                                                                                     |
+| parameters         |    [parameters](../../../documentation/configuration/tools/_index.md#specifying-parameters)    |    false     | List of [parameters](../../../documentation/configuration/tools/_index.md#specifying-parameters) that will be inserted into the CQL statement.                                           |
+| templateParameters | [templateParameters](../../../documentation/configuration/tools/_index.md#template-parameters) |    false     | List of [templateParameters](../../../documentation/configuration/tools/_index.md#template-parameters) that will be inserted into the CQL statement before executing prepared statement. |
+
+
+
+
+========================================================================
 ## Serverless for Apache Spark
 ========================================================================
 **Hierarchy:** MCP Toolbox for Databases > Integrations > Serverless for Apache Spark
@@ -40718,7 +42479,7 @@ In this section, we will download and install the Toolbox binary.
     {{< /notice >}}
     <!-- {x-release-please-start-version} -->
     ```bash
-    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, or windows/amd64
+    export OS="linux/amd64" # one of linux/amd64, darwin/arm64, darwin/amd64, windows/amd64, or windows/arm64
     export VERSION="0.10.0"
     curl -O https://storage.googleapis.com/mcp-toolbox-for-databases/v$VERSION/$OS/toolbox
     ```
@@ -41010,6 +42771,76 @@ description: Use this tool to execute sql statement.
 | source      |  string  |     true     | Name of the source the SQL should execute on.                                            |
 | description |  string  |     true     | Description of the tool that is passed to the LLM.                                       |
 | readOnly    |   bool   |    false     | When set to `true`, the `statement` is run as a read-only transaction. Default: `false`. |
+
+
+
+
+========================================================================
+## spanner-search-catalog
+========================================================================
+**Hierarchy:** MCP Toolbox for Databases > Integrations > Spanner > Tools > spanner-search-catalog
+**URL:** https://mcp-toolbox.dev/dev/integrations/spanner/tools/spanner-search-catalog/
+**Description:** A "spanner-search-catalog" tool allows to search for entries based on the provided query.
+
+
+
+## About
+
+A `spanner-search-catalog` tool returns all entries in Knowledge Catalog (e.g.
+tables, views, databases) with system=Spanner that matches given user query.
+
+`spanner-search-catalog` takes a required `prompt` parameter based on which
+entries are filtered and returned to the user. It also optionally accepts
+following parameters:
+
+- `databaseIds` - The IDs of the spanner database.
+- `projectIds` - The IDs of the GCP project.
+- `types` - The type of the data. Accepted values are: DATABASE, TABLE, VIEW.
+- `pageSize` - Number of results in the search page. Defaults to `5`.
+
+## Compatible Sources
+
+{{< compatible-sources >}}
+
+## Requirements
+
+### IAM Permissions
+
+Spanner uses [Identity and Access Management (IAM)][iam-overview] to control
+user and group access to Knowledge Catalog (formerly known as Dataplex) resources. Toolbox will use your
+[Application Default Credentials (ADC)][adc] to authorize and authenticate when
+interacting with [Knowledge Catalog][dataplex-docs].
+
+In addition to [setting the ADC for your server][set-adc], you need to ensure
+the IAM identity has been given the correct IAM permissions for the tasks you
+intend to perform. See [Knowledge Catalog IAM permissions][iam-permissions]
+and [Knowledge Catalog IAM roles][iam-roles] for more information on
+applying IAM permissions and roles to an identity.
+
+[iam-overview]: https://cloud.google.com/dataplex/docs/iam-and-access-control
+[adc]: https://cloud.google.com/docs/authentication#adc
+[set-adc]: https://cloud.google.com/docs/authentication/provide-credentials-adc
+[iam-permissions]: https://cloud.google.com/dataplex/docs/iam-permissions
+[iam-roles]: https://cloud.google.com/dataplex/docs/iam-roles
+[dataplex-docs]: https://cloud.google.com/dataplex/docs
+
+## Example
+
+```yaml
+kind: tool
+name: search_catalog
+type: spanner-search-catalog
+source: spanner-source
+description: Searches for data assets (eg. Spanner tables, views, or databases) in Knowledge Catalog (formerly known as Dataplex) based on the provided search query
+```
+
+## Reference
+
+| **field**   |                  **type**                  | **required** | **description**                                                                                  |
+|-------------|:------------------------------------------:|:------------:|--------------------------------------------------------------------------------------------------|
+| type        |                   string                   |     true     | Must be "spanner-search-catalog".                                                               |
+| source      |                   string                   |     true     | Name of the source the tool should execute on.                                                   |
+| description |                   string                   |     true     | Description of the tool that is passed to the LLM.                                               |
 
 
 
@@ -41805,6 +43636,7 @@ description: |
     *   `execute_sql_dql`: Executes a DQL SQL query.
     *   `list_tables`: Lists tables in the database.
     *   `list_graphs`: Lists graphs in the database.
+    *   `search_catalog`: Searches for data assets in Knowledge Catalog (Dataplex).
 
 
 
@@ -41835,6 +43667,7 @@ description: |
     *   `execute_sql_dql`: Executes a DQL SQL query using the PostgreSQL
         interface for Spanner.
     *   `list_tables`: Lists tables in the database.
+    *   `search_catalog`: Searches for data assets in Knowledge Catalog (Dataplex).
 
 
 
@@ -42259,6 +44092,7 @@ database: ":memory:"
 |-----------|:--------:|:------------:|---------------------------------------------------------------------------------------------------------------------|
 | type      |  string  |     true     | Must be "sqlite".                                                                                                   |
 | database  |  string  |     true     | Path to SQLite database file, or ":memory:" for an in-memory database.                                              |
+| sqlCommenter | boolean |  false     | Overrides the global `--sql-commenter` flag for this source. When set, it takes priority; when omitted, the global flag applies. |
 
 ### Connection Properties
 
@@ -43840,18 +45674,21 @@ Configure the Gemini CLI to talk to your local Toolbox MCP server.
 | `-a`         | `--address`                | Address of the interface the server will listen on.                                                                                                                       | `127.0.0.1` |
 |              | `--disable-reload`         | Disables dynamic reloading config.                                                                                                                                        |             |
 | `-h`         | `--help`                   | help for toolbox                                                                                                                                                          |             |
+|              | `--http-max-request-bytes` | Maximum MCP HTTP request body size in bytes.                                                                                                                              | `10485760`  |
+|              | `--ignore-unknown-tools`   | Log warnings and skip unknown/unsupported tool types instead of failing to start.                                                                                          |             |
 |              | `--log-level`              | Specify the minimum level logged. Allowed: 'DEBUG', 'INFO', 'WARN', 'ERROR'.                                                                                              | `info`      |
 |              | `--logging-format`         | Specify logging format to use. Allowed: 'standard' or 'JSON'.                                                                                                             | `standard`  |
 |              | `--mcp-prm-file`           | Path to a manual Protected Resource Metadata (PRM) JSON file. If provided, overrides auto-generation for MCP Server-Wide Authentication.                                  |             |
 | `-p`         | `--port`                   | Port the server will listen on.                                                                                                                                           | `5000`      |
 |              | `--tls-cert`               | Path to the PEM-encoded TLS certificate file.                                                                                                                             |             |
 |              | `--tls-key`                | Path to the PEM-encoded TLS private key file.                                                                                                                             |             |
-|              | `--prebuilt`               | Use one or more prebuilt tool configuration by source type. See [Prebuilt Tools Reference](../documentation/configuration/prebuilt-configs/_index.md) for allowed values. |             |
+|              | `--prebuilt`               | Use one or more prebuilt tool configuration by source type. Optionally specify a toolset suffix (e.g., `<source>/<toolset>`) to load only that toolset. See [Prebuilt Tools Reference](../documentation/configuration/prebuilt-configs/_index.md) for allowed values. |             |
 |              | `--stdio`                  | Listens via MCP STDIO instead of acting as a remote HTTP server.                                                                                                          |             |
 |              | `--telemetry-gcp`          | Enable exporting directly to Google Cloud Monitoring.                                                                                                                     |             |
+|              | `--telemetry-gcp-project`  | Google Cloud project ID used for `--telemetry-gcp`; defaults to `GOOGLE_CLOUD_PROJECT` if not set.                                                                        |             |
 |              | `--telemetry-otlp`         | Enable exporting using OpenTelemetry Protocol (OTLP) to the specified endpoint (e.g. 'http://127.0.0.1:4318')                                                             |             |
 |              | `--telemetry-service-name` | Sets the value of the service.name resource attribute for telemetry data.                                                                                                 | `toolbox`   |
-|              | `--sql-commenter`          | Append SQLCommenter-format comments (traceparent, server, tool.name, db.system.name, client metadata from `_meta["dev.mcp-toolbox/telemetry"]`) to executed SQL.          |             |
+|              | `--sql-commenter`          | Prepend SQLCommenter-format comments (traceparent, server, tool.name, db.system.name, client metadata from `_meta["dev.mcp-toolbox/telemetry"]`) to executed SQL.         |             |
 |              | `--config`                 | File path specifying the tool configuration. Cannot be used with --configs or --config-folder.                                                                            |             |
 |              | `--configs`                | Multiple file paths specifying tool configurations. Files will be merged. Cannot be used with --config or --config-folder.                                                |             |
 |              | `--config-folder`          | Directory path containing YAML tool configuration files. All .yaml and .yml files in the directory will be loaded and merged. Cannot be used with --config or --configs.  |             |
@@ -43985,6 +45822,9 @@ By default, traffic is unencrypted (HTTP). In production or shared networks, you
 ./toolbox --prebuilt alloydb-postgres,alloydb-postgres-admin
 # OR
 ./toolbox --prebuilt alloydb-postgres --prebuilt alloydb-postgres-admin
+
+# Server filtering a prebuilt configuration to load only a specific toolset
+./toolbox --prebuilt alloydb-postgres/monitor
 ```
 
 ### Tool Configuration Sources
@@ -44006,7 +45846,7 @@ The CLI supports multiple mutually exclusive ways to specify tool configurations
 **Prebuilt Configurations:**
 
 - `--prebuilt`: Use one or more predefined configurations for specific database types (e.g.,
-  'bigquery', 'postgres', 'spanner'). See [Prebuilt Tools 
+  'bigquery', 'postgres', 'spanner'), optionally appending a toolset name to filter the loaded tools (e.g., `alloydb-postgres/monitor`). See [Prebuilt Tools 
   Reference](../documentation/configuration/prebuilt-configs/_index.md) for allowed values.
 
 {{< notice tip >}}
@@ -44067,6 +45907,15 @@ For detailed instructions, check out these resources:
 Nope! While some of the sources Toolbox connects to may require GCP credentials,
 Toolbox doesn't require them and can connect to a bunch of different resources
 that don't.
+
+## How do I configure Google Cloud telemetry with ADC when running locally?
+
+If you run Toolbox with `--telemetry-gcp`, make sure Application Default Credentials are available via `GOOGLE_APPLICATION_CREDENTIALS` (or other ADC-compatible setup) and specify a project ID either by:
+
+- setting `--telemetry-gcp-project`, or
+- setting `GOOGLE_CLOUD_PROJECT` environment variable.
+
+This avoids "no project found" errors when exporting telemetry to Google Cloud.
 
 ## Does Toolbox take contributions from external users?
 
