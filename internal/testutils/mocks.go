@@ -122,6 +122,10 @@ func (t MockTool) GetAuthTokenHeaderName(tools.SourceProvider) (string, error) {
 	return "Authorization", nil
 }
 
+func (m MockTool) GetPiiPolicy() string {
+	return ""
+}
+
 func (t MockTool) GetScopesRequired() []string {
 	return nil
 }

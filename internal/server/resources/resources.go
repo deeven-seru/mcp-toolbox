@@ -22,6 +22,7 @@ import (
 	"github.com/googleapis/mcp-toolbox/internal/prompts"
 	"github.com/googleapis/mcp-toolbox/internal/sources"
 	"github.com/googleapis/mcp-toolbox/internal/tools"
+	"github.com/googleapis/mcp-toolbox/internal/piipolicy"
 )
 
 // ResourceManager contains available resources for the server. Should be initialized with NewResourceManager().
@@ -34,6 +35,7 @@ type ResourceManager struct {
 	toolsets        map[string]tools.Toolset
 	prompts         map[string]prompts.Prompt
 	promptsets      map[string]prompts.Promptset
+	piiPolicies     map[string]piipolicy.Config
 }
 
 func NewResourceManager(
@@ -42,7 +44,7 @@ func NewResourceManager(
 	embeddingModelsMap map[string]embeddingmodels.EmbeddingModel,
 	toolsMap map[string]tools.Tool, toolsetsMap map[string]tools.Toolset,
 	promptsMap map[string]prompts.Prompt, promptsetsMap map[string]prompts.Promptset,
-
+	piiPoliciesMap map[string]piipolicy.Config,
 ) *ResourceManager {
 	resourceMgr := &ResourceManager{
 		mu:              sync.RWMutex{},
@@ -53,6 +55,7 @@ func NewResourceManager(
 		toolsets:        toolsetsMap,
 		prompts:         promptsMap,
 		promptsets:      promptsetsMap,
+		piiPolicies:     piiPoliciesMap,
 	}
 
 	return resourceMgr
@@ -107,7 +110,14 @@ func (r *ResourceManager) GetPromptset(promptsetName string) (prompts.Promptset,
 	return promptset, ok
 }
 
-func (r *ResourceManager) SetResources(sourcesMap map[string]sources.Source, authServicesMap map[string]auth.AuthService, embeddingModelsMap map[string]embeddingmodels.EmbeddingModel, toolsMap map[string]tools.Tool, toolsetsMap map[string]tools.Toolset, promptsMap map[string]prompts.Prompt, promptsetsMap map[string]prompts.Promptset) {
+func (r *ResourceManager) GetPiiPolicy(policyName string) (piipolicy.Config, bool) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	policy, ok := r.piiPolicies[policyName]
+	return policy, ok
+}
+
+func (r *ResourceManager) SetResources(sourcesMap map[string]sources.Source, authServicesMap map[string]auth.AuthService, embeddingModelsMap map[string]embeddingmodels.EmbeddingModel, toolsMap map[string]tools.Tool, toolsetsMap map[string]tools.Toolset, promptsMap map[string]prompts.Prompt, promptsetsMap map[string]prompts.Promptset, piiPoliciesMap map[string]piipolicy.Config) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.sources = sourcesMap
@@ -117,6 +127,7 @@ func (r *ResourceManager) SetResources(sourcesMap map[string]sources.Source, aut
 	r.toolsets = toolsetsMap
 	r.prompts = promptsMap
 	r.promptsets = promptsetsMap
+	r.piiPolicies = piiPoliciesMap
 }
 
 func (r *ResourceManager) GetSourcesMap() map[string]sources.Source {
@@ -164,6 +175,16 @@ func (r *ResourceManager) GetPromptsMap() map[string]prompts.Prompt {
 	defer r.mu.RUnlock()
 	copiedMap := make(map[string]prompts.Prompt, len(r.prompts))
 	for k, v := range r.prompts {
+		copiedMap[k] = v
+	}
+	return copiedMap
+}
+
+func (r *ResourceManager) GetPiiPoliciesMap() map[string]piipolicy.Config {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+	copiedMap := make(map[string]piipolicy.Config, len(r.piiPolicies))
+	for k, v := range r.piiPolicies {
 		copiedMap[k] = v
 	}
 	return copiedMap

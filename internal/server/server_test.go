@@ -268,7 +268,7 @@ func TestUpdateServer(t *testing.T) {
 			Prompts: []*prompts.Prompt{},
 		},
 	}
-	s.ResourceMgr.SetResources(newSources, newAuth, newEmbeddingModels, newTools, newToolsets, newPrompts, newPromptsets)
+	s.ResourceMgr.SetResources(newSources, newAuth, newEmbeddingModels, newTools, newToolsets, newPrompts, newPromptsets, nil)
 	if err != nil {
 		t.Errorf("error updating server: %s", err)
 	}
@@ -1237,7 +1237,7 @@ mcpEnabled: true
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, _, _, _, _, err := server.UnmarshalResourceConfig(ctx, []byte(tc.yaml))
+			_, _, _, _, _, _, _, err := server.UnmarshalResourceConfig(ctx, []byte(tc.yaml))
 			if (err != nil) != tc.wantError {
 				t.Fatalf("UnmarshalResourceConfig() returned error: %v, wantError: %v", err, tc.wantError)
 			}
@@ -1329,7 +1329,7 @@ scopesRequired:
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			_, _, _, _, _, _, err := server.UnmarshalResourceConfig(ctx, []byte(tc.yaml))
+			_, _, _, _, _, _, _, err := server.UnmarshalResourceConfig(ctx, []byte(tc.yaml))
 			if (err != nil) != tc.wantError {
 				t.Fatalf("UnmarshalResourceConfig() returned error: %v, wantError: %v", err, tc.wantError)
 			}
